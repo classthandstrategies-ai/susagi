@@ -11,15 +11,15 @@ data class GxTypography(
     val display: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 34.sp,
-        lineHeight = 40.sp,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
         color = GxTextHi
     ),
     val headline: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp,
-        lineHeight = 30.sp,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
         color = GxTextHi
     ),
     val title: TextStyle = TextStyle(
@@ -39,16 +39,16 @@ data class GxTypography(
     val label: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
-        lineHeight = 16.sp,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
         color = GxTextMid
     ),
     val caption: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 14.sp,
-        letterSpacing = 0.5.sp,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.2.sp,
         color = GxTextLo
     ),
     val mono: TextStyle = TextStyle(

@@ -93,8 +93,9 @@ import com.guardian.app.ui.theme.GxTextMid
 import com.guardian.app.ui.theme.GxTheme
 import com.guardian.app.ui.theme.GxType
 import com.guardian.app.ui.theme.GxVoid
-import com.guardian.app.ui.theme.GxWarning
-import com.guardian.app.ui.theme.GxWarningSoft
+import com.guardian.app.ui.design.SuSagiTheme
+import com.guardian.app.ui.live.LiveDefenseUiState
+import com.guardian.app.ui.live.SuSagiLiveDefenseScreen
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -196,31 +197,27 @@ class CallRiskActivity : ComponentActivity() {
         setContent {
             val agoraCallState by agoraEngine?.callState?.collectAsState() ?: remember { mutableStateOf(AgoraCallState.DISCONNECTED) }
 
-            GuardianTheme {
-                CallRiskScreen(
-                    isDetecting = isDetecting || isDemoModePlaying || agoraCallState == AgoraCallState.IN_CALL || agoraCallState == AgoraCallState.CONNECTING,
-                    isAnalyzing = isAnalyzing,
-                    isAgoraMode = isAgoraMode,
-                    agoraCallState = agoraCallState,
-                    transcript = transcript,
-                    conversationHistory = conversationHistory,
-                    riskReport = riskReport,
-                    errorMessage = errorMessage,
-                    selectedLanguage = selectedLanguage,
-                    audioLevel = audioLevel,
-                    isDemoModePlaying = isDemoModePlaying,
-                    callerNumber = currentCallerNumber,
-                    onLanguageSelect = { lang ->
-                        selectedLanguage = lang
-                        transcriber?.setLanguage(lang)
+            SuSagiTheme {
+                val liveState = remember(riskReport, transcript, currentCallerNumber, isDetecting, isAnalyzing, errorMessage, agoraCallState) {
+                    LiveDefenseUiState.fromRuntime(
+                        report = riskReport,
+                        transcript = transcript,
+                        callerNumber = currentCallerNumber,
+                        isDetecting = isDetecting || isDemoModePlaying || agoraCallState == AgoraCallState.IN_CALL || agoraCallState == AgoraCallState.CONNECTING,
+                        isAnalyzing = isAnalyzing,
+                        errorMessage = errorMessage
+                    )
+                }
+
+                SuSagiLiveDefenseScreen(
+                    uiState = liveState,
+                    onVerifyIdentity = {
+                        // CP3 PLATFORM DEPENDENCY: Awaiting Platform VerificationSession creation
                     },
-                    onStartSpeaker = ::requestAndStartDetection,
-                    onStartAgoraVoip = ::startAgoraCall,
-                    onStop = ::stopDetection,
-                    onReset = ::resetDemo,
                     onEndCall = {
                         com.guardian.app.callprotect.CallActionHelper.endCall(this@CallRiskActivity)
                         stopDetection()
+                        finish()
                     },
                     onBlockNumber = {
                         val num = currentCallerNumber.ifBlank { "Unknown" }
@@ -229,8 +226,9 @@ class CallRiskActivity : ComponentActivity() {
                             android.widget.Toast.makeText(this@CallRiskActivity, "Blocked $num", android.widget.Toast.LENGTH_SHORT).show()
                         }
                     },
-                    onSimulateScenario = ::simulateScenario,
-                    onPlayFullDemo = ::startFullDemoSimulation
+                    onClose = {
+                        finish()
+                    }
                 )
             }
         }

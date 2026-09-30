@@ -12,6 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.guardian.app.ui.design.LocalSuSagiColors
+import com.guardian.app.ui.design.LocalSuSagiTypography
+import com.guardian.app.ui.design.SuSagiColorScheme
+import com.guardian.app.ui.design.SuSagiColors
+import com.guardian.app.ui.design.SuSagiTypography
 
 val LocalGxColors = staticCompositionLocalOf { GxDarkColorScheme }
 val LocalGxTypography = staticCompositionLocalOf { GxType }
@@ -85,7 +90,9 @@ fun GuardianTheme(
 
     CompositionLocalProvider(
         LocalGxColors provides GxDarkColorScheme,
-        LocalGxTypography provides GxType
+        LocalGxTypography provides GxType,
+        LocalSuSagiColors provides SuSagiColorScheme(),
+        LocalSuSagiTypography provides SuSagiTypography()
     ) {
         MaterialTheme(
             colorScheme = DarkColorScheme,

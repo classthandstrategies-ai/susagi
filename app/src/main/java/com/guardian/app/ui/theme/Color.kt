@@ -1,28 +1,29 @@
 package com.guardian.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.guardian.app.ui.design.SuSagiColors
 
-// Base surfaces (layered, not flat)
-val GxVoid = Color(0xFF05070D)          // Deepest background
-val GxBase = Color(0xFF0A0E1A)          // Screen background
-val GxSurface = Color(0xFF111625)       // Cards
-val GxSurfaceAlt = Color(0xFF1A2032)    // Elevated cards
-val GxBorder = Color(0xFF232B40)        // Hairline dividers
+// Base surfaces (layered banking-grade neutral dark)
+val GxVoid = SuSagiColors.Void                  // Deepest background (#0B0E14)
+val GxBase = SuSagiColors.Base                  // Screen background (#111622)
+val GxSurface = SuSagiColors.Surface            // Cards (#182030)
+val GxSurfaceAlt = SuSagiColors.SurfaceElevated // Elevated cards (#202B40)
+val GxBorder = SuSagiColors.Border              // Dividers (#2D3A54)
 
 // Brand
-val GxPrimary = Color(0xFF5B8CFF)       // Brand blue
-val GxPrimarySoft = Color(0x1F5B8CFF)   // 12% alpha for backgrounds
-val GxPrimaryGlow = Color(0x4D5B8CFF)   // For shadows & glow
+val GxPrimary = SuSagiColors.Brand              // Trustworthy brand blue (#3B82F6)
+val GxPrimarySoft = SuSagiColors.BrandSoft      // Subtle brand container
+val GxPrimaryGlow = Color(0x333B82F6)           // Refined subtle shadow
 
-// Semantic
-val GxSafe = Color(0xFF00E5A0)
-val GxSafeSoft = Color(0x1F00E5A0)
-val GxWarning = Color(0xFFFFB020)
-val GxWarningSoft = Color(0x1FFFB020)
-val GxDanger = Color(0xFFFF4D5E)
-val GxDangerSoft = Color(0x1FFF4D5E)
+// Semantic (Calm, high-contrast, not cyber neon)
+val GxSafe = SuSagiColors.RiskLow               // Emerald (#10B981)
+val GxSafeSoft = SuSagiColors.RiskLowSoft
+val GxWarning = SuSagiColors.RiskCaution        // Amber (#F59E0B)
+val GxWarningSoft = SuSagiColors.RiskCautionSoft
+val GxDanger = SuSagiColors.RiskCritical        // Crimson (#EF4444)
+val GxDangerSoft = SuSagiColors.RiskCriticalSoft
 
-// Text
-val GxTextHi = Color(0xFFF5F7FA)
-val GxTextMid = Color(0xFF9BA3B8)
-val GxTextLo = Color(0xFF5A6178)
+// Text (Accessible contrast ratios)
+val GxTextHi = SuSagiColors.TextPrimary         // Crisp headline/body (#F8FAFC)
+val GxTextMid = SuSagiColors.TextSecondary      // Secondary body (#CBD5E1)
+val GxTextLo = SuSagiColors.TextMuted           // Metadata & timestamps (#94A3B8)
