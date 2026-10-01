@@ -3,7 +3,7 @@ import "./globals.css";
 import { AppShell } from "@/components/navigation/AppShell";
 
 export const metadata: Metadata = {
-  title: "SuSagi — Autonomous Scam Defense Companion",
+  title: "SuSagi — Safety Companion",
   description:
     "Banking-grade protective companion for scam defense, live call screening, and trusted guardian circle.",
 };
