@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { verifyFirebaseAuth } = require('../middleware/firebaseAuth');
+const { verifySupabaseAuth } = require('../middleware/supabaseAuth');
 const { registerDevice } = require('../services/deviceRegistry');
 
 /**
  * Middleware resolver supporting custom injection for tests while defaulting
- * strictly to verifyFirebaseAuth in production.
+ * strictly to verifySupabaseAuth in production.
  */
 const authenticate = (req, res, next) => {
     const customAuth = req.app?.locals?.authMiddleware;
     if (typeof customAuth === 'function') {
         return customAuth(req, res, next);
     }
-    return verifyFirebaseAuth(req, res, next);
+    return verifySupabaseAuth(req, res, next);
 };
 
 /**
@@ -20,7 +20,7 @@ const authenticate = (req, res, next) => {
  * Registers or updates a device for the authenticated user.
  *
  * Header:
- *   Authorization: Bearer <Firebase ID token>
+ *   Authorization: Bearer <Supabase access token>
  *
  * Body:
  * {

@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { verifyFirebaseAuth } = require('../middleware/firebaseAuth');
+const { verifySupabaseAuth } = require('../middleware/supabaseAuth');
 const verificationService = require('../services/verificationService');
 
 /**
  * Middleware resolver supporting custom injection for tests while defaulting
- * strictly to verifyFirebaseAuth in production.
+ * strictly to verifySupabaseAuth in production.
  */
 const authenticate = (req, res, next) => {
     const customAuth = req.app?.locals?.authMiddleware;
     if (typeof customAuth === 'function') {
         return customAuth(req, res, next);
     }
-    return verifyFirebaseAuth(req, res, next);
+    return verifySupabaseAuth(req, res, next);
 };
 
 /**
@@ -20,7 +20,7 @@ const authenticate = (req, res, next) => {
  * Authoritatively creates a new VerificationSession.
  *
  * Header:
- *   Authorization: Bearer <Firebase ID token>
+ *   Authorization: Bearer <Supabase access token>
  *
  * Body:
  * {
@@ -76,10 +76,10 @@ router.post('/', authenticate, async (req, res) => {
 
 /**
  * POST /api/v1/verifications/:sessionId/respond
- * Authenticated trusted contact response with transactional first-terminal-state-wins semantics.
+ * Authenticated trusted contact response with compare-and-set atomic first-terminal-state-wins semantics.
  *
  * Header:
- *   Authorization: Bearer <Firebase ID token>
+ *   Authorization: Bearer <Supabase access token>
  *
  * Body:
  * {
@@ -127,7 +127,7 @@ router.post('/:sessionId/respond', authenticate, async (req, res) => {
  * Retrieves a VerificationSession with lazy authoritative expiry.
  *
  * Header:
- *   Authorization: Bearer <Firebase ID token>
+ *   Authorization: Bearer <Supabase access token>
  */
 router.get('/:sessionId', authenticate, async (req, res) => {
     try {

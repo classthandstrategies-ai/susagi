@@ -92,7 +92,7 @@ class VerificationDomainTest {
     }
 
     @Test
-    fun testFirestoreSerializationMapping() {
+    fun testSupabaseSerializationMapping() {
         val originalSession = VerificationSession(
             id = "session_roundtrip_99",
             protectedUserId = "user_protected_1",
@@ -109,21 +109,21 @@ class VerificationDomainTest {
             version = 2
         )
 
-        val map = FirestoreVerificationRepository.toMap(originalSession)
-        assertEquals("user_protected_1", map["protectedUserId"])
-        assertEquals("user_trusted_2", map["trustedUserId"])
-        assertEquals("Cyber Crime Officer", map["claimedIdentity"])
-        assertEquals("Send OTP", map["requestedAction"])
-        assertEquals("Threatened with immediate arrest", map["requestSummary"])
-        assertEquals(95, map["riskScoreAtCreation"])
+        val map = SupabaseVerificationRepository.toMap(originalSession)
+        assertEquals("user_protected_1", map["protected_user_id"])
+        assertEquals("user_trusted_2", map["trusted_user_id"])
+        assertEquals("Cyber Crime Officer", map["claimed_identity"])
+        assertEquals("Send OTP", map["requested_action"])
+        assertEquals("Threatened with immediate arrest", map["request_summary"])
+        assertEquals(95, map["risk_score_at_creation"])
         assertEquals("VERIFIED", map["status"])
-        assertEquals(1700000000000L, map["createdAt"])
-        assertEquals(1700000300000L, map["expiresAt"])
-        assertEquals(1700000150000L, map["respondedAt"])
-        assertEquals("hw_pixel_9", map["responseDeviceId"])
+        assertEquals(1700000000000L, map["created_at"])
+        assertEquals(1700000300000L, map["expires_at"])
+        assertEquals(1700000150000L, map["responded_at"])
+        assertEquals("hw_pixel_9", map["response_device_id"])
         assertEquals(2, map["version"])
 
-        val deserialized = FirestoreVerificationRepository.fromMap(originalSession.id, map)
+        val deserialized = SupabaseVerificationRepository.fromMap(originalSession.id, map)
         assertEquals(originalSession, deserialized)
     }
 }

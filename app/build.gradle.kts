@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 val localProperties = Properties().apply {
@@ -53,6 +54,12 @@ android {
 
         val backendUrl = localProperties.getProperty("BACKEND_URL") ?: "http://192.168.29.62:3001"
         buildConfigField("String", "BACKEND_URL", "\"$backendUrl\"")
+
+        val supabaseUrl = localProperties.getProperty("SUPABASE_URL") ?: ""
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+
+        val supabaseAnonKey = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
     }
 
     buildTypes {
@@ -138,13 +145,16 @@ dependencies {
     // OkHttp for Bhashini Streaming STT WebSocket & REST Translation/TTS
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-    // Firebase Cloud Messaging, Authentication & Cloud Firestore
+    // Supabase Kotlin Multiplatform Client
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.3"))
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
+    implementation("io.ktor:ktor-client-okhttp:3.0.2")
+
+    // Firebase Cloud Messaging (FCM only - retained for notification transport)
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx") {
-        exclude(group = "com.google.guava", module = "listenablefuture")
-    }
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")

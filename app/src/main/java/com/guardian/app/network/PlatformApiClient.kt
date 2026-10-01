@@ -1,7 +1,7 @@
 package com.guardian.app.network
 
 import com.guardian.app.BuildConfig
-import com.guardian.app.auth.FirebaseAuthManager
+import com.guardian.app.auth.SupabaseAuthManager
 import com.guardian.app.verification.VerificationSession
 import com.guardian.app.verification.VerificationStatus
 import kotlinx.coroutines.Dispatchers
@@ -25,13 +25,13 @@ import java.util.concurrent.TimeUnit
  * - Trusted contact verification response submission
  *
  * Security:
- * - Automatically acquires and attaches Firebase ID token via [FirebaseAuthManager].
+ * - Automatically acquires and attaches Supabase access token via [SupabaseAuthManager].
  * - Rejects unauthenticated operations with [IllegalStateException].
  * - Never logs or exposes raw tokens.
  * - Decoupled from Android UI/Compose layers.
  */
 class PlatformApiClient(
-    private val authManager: FirebaseAuthManager = FirebaseAuthManager(),
+    private val authManager: SupabaseAuthManager = SupabaseAuthManager(),
     private val baseUrl: String = BuildConfig.BACKEND_URL,
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -50,13 +50,13 @@ class PlatformApiClient(
         fcmToken: String,
         platform: String = "android"
     ): Result<Boolean> = withContext(Dispatchers.IO) {
-        val tokenResult = authManager.getIdToken()
+        val tokenResult = authManager.getAccessToken()
         if (tokenResult.isFailure) {
             return@withContext Result.failure(
-                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain ID token")
+                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain access token")
             )
         }
-        val idToken = tokenResult.getOrThrow()
+        val accessToken = tokenResult.getOrThrow()
 
         val payload = JSONObject().apply {
             put("deviceId", deviceId)
@@ -66,7 +66,7 @@ class PlatformApiClient(
 
         val request = Request.Builder()
             .url("${baseUrl.trimEnd('/')}/api/v1/devices/register")
-            .addHeader("Authorization", "Bearer $idToken")
+            .addHeader("Authorization", "Bearer $accessToken")
             .addHeader("Content-Type", "application/json")
             .post(payload.toString().toRequestBody(jsonMediaType))
             .build()
@@ -86,13 +86,13 @@ class PlatformApiClient(
         requestSummary: String,
         riskScoreAtCreation: Int
     ): Result<VerificationSession> = withContext(Dispatchers.IO) {
-        val tokenResult = authManager.getIdToken()
+        val tokenResult = authManager.getAccessToken()
         if (tokenResult.isFailure) {
             return@withContext Result.failure(
-                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain ID token")
+                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain access token")
             )
         }
-        val idToken = tokenResult.getOrThrow()
+        val accessToken = tokenResult.getOrThrow()
 
         val payload = JSONObject().apply {
             put("trustedUserId", trustedUserId)
@@ -104,7 +104,7 @@ class PlatformApiClient(
 
         val request = Request.Builder()
             .url("${baseUrl.trimEnd('/')}/api/v1/verifications")
-            .addHeader("Authorization", "Bearer $idToken")
+            .addHeader("Authorization", "Bearer $accessToken")
             .addHeader("Content-Type", "application/json")
             .post(payload.toString().toRequestBody(jsonMediaType))
             .build()
@@ -120,17 +120,17 @@ class PlatformApiClient(
      * Retrieves an authoritative VerificationSession snapshot by ID.
      */
     suspend fun getVerification(sessionId: String): Result<VerificationSession> = withContext(Dispatchers.IO) {
-        val tokenResult = authManager.getIdToken()
+        val tokenResult = authManager.getAccessToken()
         if (tokenResult.isFailure) {
             return@withContext Result.failure(
-                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain ID token")
+                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain access token")
             )
         }
-        val idToken = tokenResult.getOrThrow()
+        val accessToken = tokenResult.getOrThrow()
 
         val request = Request.Builder()
             .url("${baseUrl.trimEnd('/')}/api/v1/verifications/$sessionId")
-            .addHeader("Authorization", "Bearer $idToken")
+            .addHeader("Authorization", "Bearer $accessToken")
             .get()
             .build()
 
@@ -155,13 +155,13 @@ class PlatformApiClient(
             )
         }
 
-        val tokenResult = authManager.getIdToken()
+        val tokenResult = authManager.getAccessToken()
         if (tokenResult.isFailure) {
             return@withContext Result.failure(
-                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain ID token")
+                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain access token")
             )
         }
-        val idToken = tokenResult.getOrThrow()
+        val accessToken = tokenResult.getOrThrow()
 
         val payload = JSONObject().apply {
             put("response", response.name)
@@ -170,7 +170,7 @@ class PlatformApiClient(
 
         val request = Request.Builder()
             .url("${baseUrl.trimEnd('/')}/api/v1/verifications/$sessionId/respond")
-            .addHeader("Authorization", "Bearer $idToken")
+            .addHeader("Authorization", "Bearer $accessToken")
             .addHeader("Content-Type", "application/json")
             .post(payload.toString().toRequestBody(jsonMediaType))
             .build()
