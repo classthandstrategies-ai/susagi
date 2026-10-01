@@ -5,7 +5,7 @@ import { AppShell } from "@/components/navigation/AppShell";
 export const metadata: Metadata = {
   title: "SuSagi — Safety Companion",
   description:
-    "Banking-grade protective companion for scam defense, live call screening, and trusted guardian circle.",
+    "SuSagi is a safety companion for reviewing suspicious activity, coordinating identity checks, and inspecting links before you open them.",
 };
 
 export const viewport: Viewport = {
