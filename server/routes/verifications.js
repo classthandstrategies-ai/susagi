@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { verifySupabaseAuth } = require('../middleware/supabaseAuth');
 const verificationService = require('../services/verificationService');
+const verificationPush = require('../services/verificationPush');
 
 /**
  * Middleware resolver supporting custom injection for tests while defaulting
@@ -61,9 +62,32 @@ router.post('/', authenticate, async (req, res) => {
             db
         });
 
+        // Attempt push notification dispatch to target trusted user's registered devices.
+        // Rule: Supabase is canonical; push dispatch failures never delete or rollback the session.
+        let pushResult = null;
+        try {
+            const messagingClient = req.app?.locals?.messagingClient;
+            pushResult = await verificationPush.dispatchVerificationPush({
+                session,
+                db,
+                messagingClient
+            });
+        } catch (pushErr) {
+            console.error('[Verifications] Push dispatch error:', pushErr.message);
+            pushResult = {
+                attempted: 0,
+                accepted: 0,
+                invalidTokens: 0,
+                transientFailures: 1,
+                deliveryStatus: 'failed',
+                error: pushErr.message
+            };
+        }
+
         return res.status(201).json({
             success: true,
-            session
+            session,
+            push: pushResult
         });
     } catch (err) {
         const statusCode = err.statusCode || 500;

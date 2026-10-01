@@ -4,11 +4,15 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.guardian.app.BuildConfig
+import com.guardian.app.device.DeviceIdentityStore
+import com.guardian.app.network.PlatformApiClient
+import com.guardian.app.supabase.SupabaseClientProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
@@ -16,8 +20,9 @@ class GuardianFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("GuardianFCM", "New FCM token: ${token.take(20)}...")
-        sendTokenToBackend(token)
+        Log.d("GuardianFCM", "New FCM token received: ${token.take(10)}...")
+        DeviceIdentityStore.savePendingFcmToken(applicationContext, token)
+        syncDeviceToken(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -27,14 +32,37 @@ class GuardianFirebaseMessagingService : FirebaseMessagingService() {
         // Handle data payload
         val data = remoteMessage.data
         if (data.isNotEmpty()) {
-            Log.d("GuardianFCM", "Data payload: $data")
-            handleFamilyAlert(data)
+            val messageType = data["type"]
+
+            if (messageType == VerificationPushPayload.PUSH_TYPE) {
+                handleVerificationPush(data)
+            } else if (data.containsKey("alert_type") || data.containsKey("protected_user")) {
+                handleFamilyAlert(data)
+            } else {
+                Log.d("GuardianFCM", "Unrecognized data payload received")
+            }
         }
 
         // Handle notification payload (if present)
         remoteMessage.notification?.let {
             Log.d("GuardianFCM", "Notification: ${it.title} - ${it.body}")
         }
+    }
+
+    private fun handleVerificationPush(data: Map<String, String>) {
+        val payload = VerificationPushPayload.parse(data)
+        if (payload == null) {
+            Log.w("GuardianFCM", "Ignored malformed or invalid identity_verification push payload")
+            return
+        }
+
+        if (payload.isExpired()) {
+            Log.d("GuardianFCM", "Ignored already expired verification session push: ${payload.sessionId}")
+            return
+        }
+
+        Log.d("GuardianFCM", "Rendering verification notification for session: ${payload.sessionId}")
+        GuardianNotificationHelper.showVerificationAlert(applicationContext, payload)
     }
 
     private fun handleFamilyAlert(data: Map<String, String>) {
@@ -71,26 +99,61 @@ class GuardianFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    fun sendTokenToBackend(token: String) {
+    /**
+     * Registers the device and FCM token authoritatively with the backend using Supabase Auth.
+     */
+    fun syncDeviceToken(token: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            val deviceId = DeviceIdentityStore.getOrCreateDeviceId(applicationContext)
+
+            // 1. Authenticated registration with Node backend -> Supabase devices table
             try {
-                val payload = JSONObject().apply {
+                val authManager = com.guardian.app.auth.SupabaseAuthManager()
+                val platformClient = PlatformApiClient(
+                    baseUrl = BuildConfig.BACKEND_URL,
+                    authManager = authManager
+                )
+
+                val result = platformClient.registerDevice(
+                    deviceId = deviceId,
+                    fcmToken = token,
+                    platform = "android"
+                )
+
+                if (result.isSuccess) {
+                    DeviceIdentityStore.markTokenSynced(applicationContext, token)
+                    Log.d("GuardianFCM", "Device $deviceId successfully registered with backend")
+                } else {
+                    Log.w("GuardianFCM", "Backend device registration deferred: ${result.exceptionOrNull()?.message}")
+                }
+            } catch (e: Exception) {
+                Log.w("GuardianFCM", "Backend device registration attempt failed: ${e.message}")
+            }
+
+            // 2. Legacy fallback to /family/register to preserve family alert compatibility
+            try {
+                val legacyPayload = JSONObject().apply {
                     put("fcmToken", token)
                     put("userId", getUserId())
+                    put("deviceId", deviceId)
                     put("timestamp", System.currentTimeMillis())
                 }
 
                 val request = Request.Builder()
                     .url("${BuildConfig.BACKEND_URL}/family/register")
-                    .post(payload.toString().toRequestBody("application/json".toMediaType()))
+                    .post(legacyPayload.toString().toRequestBody("application/json".toMediaType()))
                     .build()
 
                 OkHttpClient().newCall(request).execute()
-                Log.d("GuardianFCM", "Token registered with backend")
-            } catch (e: Exception) {
-                Log.e("GuardianFCM", "Token registration failed", e)
+            } catch (_: Exception) {
+                // Ignore legacy errors
             }
         }
+    }
+
+    fun sendTokenToBackend(token: String) {
+        DeviceIdentityStore.savePendingFcmToken(applicationContext, token)
+        syncDeviceToken(token)
     }
 
     private fun getUserId(): String {
