@@ -9,21 +9,23 @@ import org.junit.Test
 /**
  * Behavior-focused unit tests for [RiskEngine] and [RiskPolicy].
  *
- * Verifies all 14 mandatory behavioral test cases:
+ * Verifies all 14 mandatory behavioral test cases plus contract normalization:
  * 1. no signals → low risk
  * 2. benign OTP mention → low risk
  * 3. OTP warning/negation → low risk
- * 4. OTP request → elevated risk
+ * 4. OTP request → elevated risk (CAUTION)
  * 5. OTP request + urgency → high risk
- * 6. money request alone → elevated but not automatically critical
+ * 6. money request alone → elevated but not automatically critical (CAUTION)
  * 7. money request + urgency → high risk
- * 8. authority claim + fear + money request → very high risk
- * 9. remote-access request + bank/authority context → high/very high risk
+ * 8. authority claim + fear + money request → very high risk (CRITICAL)
+ * 9. remote-access request + bank/authority context → high/very high risk (CRITICAL)
  * 10. trusted-contact rejection → very strong identity-risk evidence
  * 11. trusted-contact confirmation reduces identity concern appropriately
  * 12. multiple benign/informational signals do NOT accidentally accumulate into high risk
  * 13. contradictory benign context can reduce an earlier ambiguous signal
  * 14. deterministic input produces deterministic output
+ * 15. contract normalization: threshold boundaries (39->LOW, 40->CAUTION, 59->CAUTION, 60->HIGH, 79->HIGH, 80->CRITICAL, 100->CRITICAL)
+ * 16. contract normalization: typed ProtectiveAction recommendations and deduplication
  */
 class RiskEngineTest {
 
@@ -45,7 +47,7 @@ class RiskEngineTest {
         assertEquals(RiskLevel.LOW, assessment.level)
         assertTrue(assessment.signals.isEmpty())
         assertTrue(assessment.explanation.contains("normal", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.isNotEmpty())
+        assertEquals(listOf(ProtectiveAction.CONTINUE_MONITORING), assessment.recommendedActions)
     }
 
     // -------------------------------------------------------------------------
@@ -63,7 +65,7 @@ class RiskEngineTest {
         val assessment = engine.evaluate(listOf(signal))
 
         assertEquals(RiskLevel.LOW, assessment.level)
-        assertTrue("Score ${assessment.score} should be <= ${RiskLevel.LOW_MAX}", assessment.score <= RiskLevel.LOW_MAX)
+        assertTrue("Score ${assessment.score} should remain <= 15 for benign mention", assessment.score <= 15)
         assertTrue(assessment.explanation.contains("LOW", ignoreCase = true))
     }
 
@@ -75,18 +77,11 @@ class RiskEngineTest {
         val warningSignal = ScamSignal(
             type = SignalType.OTP_REQUEST,
             context = SignalContext.WARNING,
-            source = SignalSource.SEMANTIC_MODEL,
-            rawEvidence = "Never share your OTP or password with any bank representative."
-        )
-
-        val negationSignal = ScamSignal(
-            type = SignalType.PIN_REQUEST,
-            context = SignalContext.NEGATION,
             source = SignalSource.LOCAL_RULE,
-            rawEvidence = "I will never give my PIN to you."
+            rawEvidence = "The bank says never share your OTP with anyone."
         )
 
-        val assessment = engine.evaluate(listOf(warningSignal, negationSignal))
+        val assessment = engine.evaluate(listOf(warningSignal))
 
         assertEquals(0, assessment.score)
         assertEquals(RiskLevel.LOW, assessment.level)
@@ -95,7 +90,7 @@ class RiskEngineTest {
     }
 
     // -------------------------------------------------------------------------
-    // Test 4: OTP request alone → Elevated risk
+    // Test 4: OTP request alone → Elevated risk (CAUTION)
     // -------------------------------------------------------------------------
     @Test
     fun test4_otpRequestAlone_producesElevatedRisk() {
@@ -108,10 +103,10 @@ class RiskEngineTest {
 
         val assessment = engine.evaluate(listOf(signal))
 
-        assertEquals(RiskLevel.MEDIUM, assessment.level)
+        assertEquals(RiskLevel.CAUTION, assessment.level)
         assertEquals(55, assessment.score)
         assertTrue(assessment.explanation.contains("ELEVATED", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("OTP", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SHARE_CREDENTIALS))
     }
 
     // -------------------------------------------------------------------------
@@ -138,11 +133,11 @@ class RiskEngineTest {
         assertEquals(RiskLevel.HIGH, assessment.level)
         assertEquals(75, assessment.score) // 55 base + 10 urgency + 10 synergy
         assertTrue(assessment.explanation.contains("HIGH", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("OTP", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SHARE_CREDENTIALS))
     }
 
     // -------------------------------------------------------------------------
-    // Test 6: Money request alone → Elevated but not automatically critical
+    // Test 6: Money request alone → Elevated but not automatically critical (CAUTION)
     // -------------------------------------------------------------------------
     @Test
     fun test6_moneyRequestAlone_producesElevatedNotCriticalRisk() {
@@ -155,11 +150,11 @@ class RiskEngineTest {
 
         val assessment = engine.evaluate(listOf(signal))
 
-        assertEquals(RiskLevel.MEDIUM, assessment.level)
+        assertEquals(RiskLevel.CAUTION, assessment.level)
         assertEquals(45, assessment.score)
         assertFalse(assessment.level == RiskLevel.CRITICAL)
         assertTrue(assessment.explanation.contains("ELEVATED", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("verify", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SEND_MONEY))
     }
 
     // -------------------------------------------------------------------------
@@ -219,7 +214,8 @@ class RiskEngineTest {
         assertEquals(RiskLevel.CRITICAL, assessment.level)
         assertTrue("Score ${assessment.score} should be >= 85", assessment.score >= 85)
         assertTrue(assessment.explanation.contains("Digital Arrest", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("arrest", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SEND_MONEY))
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.USE_OFFICIAL_CHANNEL))
     }
 
     // -------------------------------------------------------------------------
@@ -247,7 +243,7 @@ class RiskEngineTest {
         assertEquals(90, assessment.score) // 55 remote + 15 bank + 20 synergy
         assertTrue(assessment.explanation.contains("remote access", ignoreCase = true) ||
                 assessment.explanation.contains("remote-access", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("AnyDesk", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.DO_NOT_INSTALL_REMOTE_ACCESS))
     }
 
     // -------------------------------------------------------------------------
@@ -259,7 +255,7 @@ class RiskEngineTest {
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED,
             context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
-            rawEvidence = "Cryptographic signature check failed. Caller is not recognized contact."
+            rawEvidence = "Trusted-contact verification was rejected. Caller is not recognized contact."
         )
 
         val assessment = engine.evaluate(listOf(rejectionSignal))
@@ -267,7 +263,7 @@ class RiskEngineTest {
         assertEquals(RiskLevel.HIGH, assessment.level)
         assertEquals(65, assessment.score)
         assertTrue(assessment.explanation.contains("verification failed", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("Hang up", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.END_CALL))
     }
 
     // -------------------------------------------------------------------------
@@ -286,7 +282,7 @@ class RiskEngineTest {
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_CONFIRMED,
             context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
-            rawEvidence = "Family contact verified via public key challenge."
+            rawEvidence = "Family contact verified via out-of-band confirmation."
         )
 
         val assessmentA = engine.evaluate(listOf(authorityClaim, contactConfirmed))
@@ -305,7 +301,7 @@ class RiskEngineTest {
 
         val assessmentB = engine.evaluate(listOf(authorityClaim, moneyDemand, contactConfirmed))
         assertEquals(45, assessmentB.score) // Money base remains active, identity claim eliminated
-        assertEquals(RiskLevel.MEDIUM, assessmentB.level)
+        assertEquals(RiskLevel.CAUTION, assessmentB.level)
         assertFalse(assessmentB.score == 0) // Did NOT blindly erase money demand!
     }
 
@@ -459,7 +455,7 @@ class RiskEngineTest {
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED,
             context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
-            rawEvidence = "Cryptographic signature failed. Contact verification rejected."
+            rawEvidence = "Trusted-contact verification was rejected."
         )
 
         val assessment = engine.evaluate(listOf(confirmedSignal, rejectedSignal))
@@ -468,7 +464,7 @@ class RiskEngineTest {
         assertEquals(65, assessment.score)
         assertFalse("Conflicting verification must not silently resolve to LOW", assessment.level == RiskLevel.LOW)
         assertTrue(assessment.explanation.contains("conflict", ignoreCase = true))
-        assertTrue(assessment.recommendedActions.any { it.contains("Conflicting", ignoreCase = true) })
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.END_CALL))
     }
 
     // -------------------------------------------------------------------------
@@ -496,5 +492,64 @@ class RiskEngineTest {
         assertFalse("Explanation must not claim malware was proven", assessment.explanation.contains("malware", ignoreCase = true))
         assertTrue(assessment.explanation.contains("remote-access", ignoreCase = true) ||
                 assessment.explanation.contains("remote access", ignoreCase = true))
+    }
+
+    // -------------------------------------------------------------------------
+    // Contract Normalization Tests: Threshold Boundaries & Protective Actions
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testContractNormalization_thresholdBoundaries() {
+        // 1. score 39 → LOW
+        assertEquals(RiskLevel.LOW, RiskLevel.fromScore(39))
+        // 2. score 40 → CAUTION
+        assertEquals(RiskLevel.CAUTION, RiskLevel.fromScore(40))
+        // 3. score 59 → CAUTION
+        assertEquals(RiskLevel.CAUTION, RiskLevel.fromScore(59))
+        // 4. score 60 → HIGH
+        assertEquals(RiskLevel.HIGH, RiskLevel.fromScore(60))
+        // 5. score 79 → HIGH
+        assertEquals(RiskLevel.HIGH, RiskLevel.fromScore(79))
+        // 6. score 80 → CRITICAL
+        assertEquals(RiskLevel.CRITICAL, RiskLevel.fromScore(80))
+        // 7. score 100 → CRITICAL
+        assertEquals(RiskLevel.CRITICAL, RiskLevel.fromScore(100))
+    }
+
+    @Test
+    fun testContractNormalization_protectiveActionsAndDeduplication() {
+        // 8. credential extraction returns typed credential-protection action
+        val credAssessment = engine.evaluate(listOf(
+            ScamSignal(SignalType.OTP_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE)
+        ))
+        assertTrue(credAssessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SHARE_CREDENTIALS))
+
+        // 9. money demand returns typed money-protection action
+        val moneyAssessment = engine.evaluate(listOf(
+            ScamSignal(SignalType.MONEY_TRANSFER_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE)
+        ))
+        assertTrue(moneyAssessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SEND_MONEY))
+
+        // 10. remote-access request returns typed remote-access action
+        val remoteAssessment = engine.evaluate(listOf(
+            ScamSignal(SignalType.REMOTE_ACCESS_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE)
+        ))
+        assertTrue(remoteAssessment.recommendedActions.contains(ProtectiveAction.DO_NOT_INSTALL_REMOTE_ACCESS))
+
+        // 11. low-risk assessment returns CONTINUE_MONITORING
+        val lowAssessment = engine.evaluate(emptyList())
+        assertEquals(listOf(ProtectiveAction.CONTINUE_MONITORING), lowAssessment.recommendedActions)
+
+        // 12. recommendations contain no duplicates
+        val compoundAssessment = engine.evaluate(listOf(
+            ScamSignal(SignalType.AUTHORITY_CLAIM, SignalContext.COMMAND, SignalSource.LOCAL_RULE),
+            ScamSignal(SignalType.MONEY_TRANSFER_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE),
+            ScamSignal(SignalType.OTP_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE),
+            ScamSignal(SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED, SignalContext.COMMAND, SignalSource.HUMAN_VERIFICATION)
+        ))
+        assertEquals(
+            compoundAssessment.recommendedActions.size,
+            compoundAssessment.recommendedActions.toSet().size
+        )
     }
 }

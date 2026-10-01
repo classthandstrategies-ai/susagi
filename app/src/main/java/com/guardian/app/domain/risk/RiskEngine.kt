@@ -27,11 +27,11 @@ class RiskEngine(
                 level = RiskLevel.LOW,
                 signals = emptyList(),
                 explanation = "No suspicious signals detected. Conversation appears normal.",
-                recommendedActions = listOf("Continue call normally. Stay alert to requests for credentials or money.")
+                recommendedActions = listOf(ProtectiveAction.CONTINUE_MONITORING)
             )
         }
 
-        // 1. Check for cryptographic/human trusted contact verification evidence
+        // 1. Check for trusted contact verification evidence
         val hasTrustedContactConfirmed = signals.any {
             it.type == SignalType.TRUSTED_CONTACT_VERIFICATION_CONFIRMED &&
                     !it.context.isBenignOrDefensive
@@ -426,36 +426,43 @@ class RiskEngine(
         isTrustedContactConfirmed: Boolean,
         hasVerificationConflict: Boolean,
         identitySignals: List<ScamSignal>
-    ): List<String> {
-        val actions = mutableListOf<String>()
+    ): List<ProtectiveAction> {
+        val actions = LinkedHashSet<ProtectiveAction>()
 
-        if (hasVerificationConflict) {
-            actions.add("Conflicting contact verification detected. Treat call with extreme caution, hang up, and call back on a verified phonebook number.")
+        val hasRejectedContact = identitySignals.any {
+            it.type == SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED
         }
+
+        if (hasVerificationConflict || hasRejectedContact) {
+            actions.add(ProtectiveAction.END_CALL)
+            actions.add(ProtectiveAction.VERIFY_IDENTITY)
+        }
+
         if (hasActiveCredentialDemand) {
-            actions.add("Never share your OTP, PIN, CVV, or passwords with anyone, even if they claim to be from your bank.")
+            actions.add(ProtectiveAction.DO_NOT_SHARE_CREDENTIALS)
         }
+
         if (hasActiveRemoteDemand) {
-            actions.add("Do not install AnyDesk, TeamViewer, or unknown APK applications. Never share your screen.")
+            actions.add(ProtectiveAction.DO_NOT_INSTALL_REMOTE_ACCESS)
         }
-        if (hasAuthorityPretext && hasActiveMoneyDemand) {
-            actions.add("Indian law enforcement and court officials NEVER arrest citizens over video/voice calls or demand money transfers.")
+
+        if (hasActiveMoneyDemand) {
+            actions.add(ProtectiveAction.DO_NOT_SEND_MONEY)
         }
-        if (identitySignals.any { it.type == SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED } && !hasVerificationConflict) {
-            actions.add("Caller failed trusted contact verification. Hang up immediately and call back using your saved phonebook contact.")
-        }
-        if (hasActiveMoneyDemand && !hasAuthorityPretext) {
-            actions.add("Pause and independently verify the recipient's phone number or account before sending any money.")
+
+        if (hasAuthorityPretext) {
+            actions.add(ProtectiveAction.USE_OFFICIAL_CHANNEL)
+            actions.add(ProtectiveAction.VERIFY_IDENTITY)
         }
 
         if (actions.isEmpty()) {
             if (level == RiskLevel.LOW) {
-                actions.add("Continue call normally. Stay alert to unexpected requests for money or security codes.")
+                actions.add(ProtectiveAction.CONTINUE_MONITORING)
             } else {
-                actions.add("Exercise caution and do not disclose sensitive personal or financial information.")
+                actions.add(ProtectiveAction.VERIFY_IDENTITY)
             }
         }
 
-        return actions
+        return actions.toList()
     }
 }

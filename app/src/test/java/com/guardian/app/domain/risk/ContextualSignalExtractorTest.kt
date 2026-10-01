@@ -49,7 +49,7 @@ class ContextualSignalExtractorTest {
         // 3. RiskEngine evaluation must reflect active demand (not suppressed to 0)
         val assessment = engine.evaluate(signals)
         assertTrue("Score ${assessment.score} must reflect active credential extraction", assessment.score >= RiskPolicy.DEFAULT.credentialRequestBase)
-        assertEquals(RiskLevel.MEDIUM, assessment.level)
+        assertEquals(RiskLevel.CAUTION, assessment.level)
     }
 
     // -------------------------------------------------------------------------
@@ -68,7 +68,7 @@ class ContextualSignalExtractorTest {
         // RiskEngine evaluation
         val assessment = engine.evaluate(signals)
         assertTrue("Risk score ${assessment.score} should be elevated", assessment.score >= RiskPolicy.DEFAULT.credentialRequestBase)
-        assertEquals(RiskLevel.MEDIUM, assessment.level)
+        assertEquals(RiskLevel.CAUTION, assessment.level)
     }
 
     // -------------------------------------------------------------------------
@@ -209,7 +209,7 @@ class ContextualSignalExtractorTest {
         // 3. RiskEngine confirms active request is not suppressed
         val assessment = engine.evaluate(signals)
         assertTrue("Active demand should produce elevated threat", assessment.score >= RiskPolicy.DEFAULT.credentialRequestBase)
-        assertEquals(RiskLevel.MEDIUM, assessment.level)
+        assertEquals(RiskLevel.CAUTION, assessment.level)
     }
 
     // -------------------------------------------------------------------------
