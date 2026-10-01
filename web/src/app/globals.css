@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import "../design/tokens.css";
+
+/* Core design system utility classes */
+.bg-void { background-color: var(--void); }
+.bg-base { background-color: var(--base); }
+.bg-surface { background-color: var(--surface); }
+.bg-surface-elevated { background-color: var(--surface-elevated); }
+.bg-surface-highlight { background-color: var(--surface-highlight); }
+
+.border-subtle { border-color: var(--border-subtle); }
+.border-default { border-color: var(--border); }
+.border-focused { border-color: var(--border-focused); }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-disabled { color: var(--text-disabled); }
+
+.text-brand { color: var(--brand); }
+.bg-brand { background-color: var(--brand); }
+.bg-brand-soft { background-color: var(--brand-soft); }
+
+.text-risk-low { color: var(--risk-low); }
+.bg-risk-low { background-color: var(--risk-low); }
+.bg-risk-low-soft { background-color: var(--risk-low-soft); }
+.border-risk-low { border-color: var(--risk-low-border); }
+
+.text-risk-caution { color: var(--risk-caution); }
+.bg-risk-caution { background-color: var(--risk-caution); }
+.bg-risk-caution-soft { background-color: var(--risk-caution-soft); }
+.border-risk-caution { border-color: var(--risk-caution-border); }
+
+.text-risk-high { color: var(--risk-high); }
+.bg-risk-high { background-color: var(--risk-high); }
+.bg-risk-high-soft { background-color: var(--risk-high-soft); }
+.border-risk-high { border-color: var(--risk-high-border); }
+
+.text-risk-critical { color: var(--risk-critical); }
+.bg-risk-critical { background-color: var(--risk-critical); }
+.bg-risk-critical-soft { background-color: var(--risk-critical-soft); }
+.border-risk-critical { border-color: var(--risk-critical-border); }
