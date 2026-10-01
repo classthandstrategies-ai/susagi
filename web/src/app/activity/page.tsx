@@ -1,36 +1,37 @@
 import React from "react";
-import { IncidentCard } from "@/components/cards/IncidentCard";
-import { sampleIncidentsList } from "@/fixtures/incidentFixtures";
-import { FIXTURE_NOTICE } from "@/fixtures/metadata";
-import { OfflineBanner } from "@/components/feedback/OfflineBanner";
+import { activityService, getDevFixtureActivity } from "@/services/activityService";
+import { ActivityPageClient, ActivityViewState } from "@/features/activity";
 
-export default function ActivityPage() {
-  return (
-    <div className="space-y-6">
-      <OfflineBanner
-        message={`Phase W1 Product Shell — Displaying sample incident log (${FIXTURE_NOTICE}).`}
-      />
+interface ActivityPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight text-primary">
-          Security Activity & Incident Audit
-        </h1>
-        <p className="text-sm text-secondary">
-          Historical log of intercepted calls, scam flags, and verified guardian interactions.
-        </p>
-      </header>
+export default async function ActivityPage({ searchParams }: ActivityPageProps) {
+  const resolvedParams = await searchParams;
+  const fixtureKey =
+    typeof resolvedParams.fixture === "string" ? resolvedParams.fixture : undefined;
 
-      <section aria-labelledby="incidents-list-heading" className="space-y-4">
-        <h2 id="incidents-list-heading" className="sr-only">
-          Recent Incidents
-        </h2>
+  let state: ActivityViewState;
 
-        <div className="space-y-3">
-          {sampleIncidentsList.map((incident) => (
-            <IncidentCard key={incident.id} incident={incident} />
-          ))}
-        </div>
-      </section>
-    </div>
-  );
+  // Development fixture mode is strictly guarded
+  if (process.env.NODE_ENV === "development" && fixtureKey) {
+    const fixtureResult = getDevFixtureActivity(fixtureKey);
+    state = {
+      status: fixtureResult.status,
+      incidents: fixtureResult.incidents,
+      errorMessage: fixtureResult.errorMessage,
+      isFixtureMode: fixtureResult.isFixtureMode,
+      fixtureKey,
+    };
+  } else {
+    // Normal production companion runtime
+    const incidents = await activityService.getIncidents();
+    state = {
+      status: incidents.length > 0 ? "LOADED" : "UNAVAILABLE",
+      incidents,
+      isFixtureMode: false,
+    };
+  }
+
+  return <ActivityPageClient initialState={state} />;
 }

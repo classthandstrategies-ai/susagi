@@ -7,12 +7,16 @@ import { formatProtectiveAction, cn } from "@/lib/utils";
 interface IncidentCardProps {
   incident: IncidentItem;
   className?: string;
+  href?: string;
 }
 
 export const IncidentCard: React.FC<IncidentCardProps> = ({
   incident,
   className,
+  href,
 }) => {
+  const targetHref = href || `/activity/${incident.id}`;
+
   return (
     <article
       className={cn(
@@ -25,14 +29,19 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
           <RiskBadge level={incident.riskLevel} size="sm" />
           <span className="text-xs text-muted font-mono">{incident.timestamp}</span>
         </div>
-        <span className="text-xs text-secondary font-mono">
-          {incident.source}
-        </span>
+        <div className="flex items-center gap-2 text-xs font-mono">
+          {incident.claimedIdentity && (
+            <span className="text-primary font-medium bg-surfaceElevated px-2 py-0.5 rounded border border-subtle">
+              Claimed: {incident.claimedIdentity}
+            </span>
+          )}
+          <span className="text-secondary">{incident.source}</span>
+        </div>
       </div>
 
       <h3 className="text-base font-semibold text-primary mb-1.5">
         <Link
-          href={`/activity/${incident.id}`}
+          href={targetHref}
           className="hover:text-brand transition-colors focus-visible:ring-2 focus-visible:ring-brandLight rounded"
         >
           {incident.title}
@@ -52,7 +61,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
         </div>
 
         <Link
-          href={`/activity/${incident.id}`}
+          href={targetHref}
           className="inline-flex items-center gap-1 font-semibold text-brand hover:text-brandLight transition-colors"
         >
           <span>View Details</span>

@@ -14,8 +14,12 @@ export const bankImpersonationIncident: FixtureIncidentDetail = {
   riskLevel: "CRITICAL",
   status: "BLOCKED",
   recommendedAction: "END_CALL",
+  additionalActions: ["DO_NOT_SHARE_CREDENTIALS", "USE_OFFICIAL_CHANNEL"],
+  claimedIdentity: "HDFC Fraud Prevention",
+  channel: "CALL",
   summary:
     "Caller attempted to harvest OTP under the guise of stopping an unauthorized international transaction on HDFC card.",
+  outcome: "Call disconnected without sharing credentials or OTP. No financial loss incurred.",
   signals: [
     {
       id: "sig-b1",
@@ -55,6 +59,7 @@ export const bankImpersonationIncident: FixtureIncidentDetail = {
       title: "Call Initiated",
       detail: "Incoming call from unverified caller claiming to be HDFC Fraud Prevention.",
       riskLevel: "CAUTION",
+      eventType: "CALL",
     },
     {
       id: "tl-2",
@@ -62,6 +67,7 @@ export const bankImpersonationIncident: FixtureIncidentDetail = {
       title: "Scam Pattern Detected",
       detail: "Caller manufactured urgency about an international debit.",
       riskLevel: "HIGH",
+      eventType: "CALL",
     },
     {
       id: "tl-3",
@@ -69,6 +75,7 @@ export const bankImpersonationIncident: FixtureIncidentDetail = {
       title: "Critical Action Triggered",
       detail: "Caller demanded OTP. SuSagi alerted user to terminate call immediately.",
       riskLevel: "CRITICAL",
+      eventType: "ACTION",
     },
     {
       id: "tl-4",
@@ -76,6 +83,7 @@ export const bankImpersonationIncident: FixtureIncidentDetail = {
       title: "Call Terminated Safely",
       detail: "User disconnected the call. No OTP or financial information shared.",
       riskLevel: "LOW",
+      eventType: "ACTION",
     },
   ],
 };
@@ -89,8 +97,12 @@ export const familyImpersonationIncident: FixtureIncidentDetail = {
   riskLevel: "HIGH",
   status: "RESOLVED",
   recommendedAction: "VERIFY_IDENTITY",
+  additionalActions: ["DO_NOT_SEND_MONEY", "USE_OFFICIAL_CHANNEL"],
+  claimedIdentity: "Distressed Relative (Nephew)",
+  channel: "CALL",
   summary:
     "Caller claimed to be a distressed relative in police custody, requesting urgent UPI transfer.",
+  outcome: "Caller disconnected when asked for the family verification code.",
   signals: [
     {
       id: "sig-f1",
@@ -128,6 +140,7 @@ export const familyImpersonationIncident: FixtureIncidentDetail = {
       title: "Unknown Call Received",
       detail: "Caller spoke with emotional distress imitating relative.",
       riskLevel: "CAUTION",
+      eventType: "CALL",
     },
     {
       id: "tl-f2",
@@ -135,6 +148,7 @@ export const familyImpersonationIncident: FixtureIncidentDetail = {
       title: "Identity Challenge Prompt",
       detail: "SuSagi advised user to verify identity via family secret passphrase.",
       riskLevel: "HIGH",
+      eventType: "VERIFICATION",
     },
     {
       id: "tl-f3",
@@ -142,29 +156,136 @@ export const familyImpersonationIncident: FixtureIncidentDetail = {
       title: "Caller Hung Up",
       detail: "Caller disconnected when asked for the family verification code.",
       riskLevel: "LOW",
+      eventType: "ACTION",
     },
   ],
 };
 
+export const courierLinkIncident: FixtureIncidentDetail = {
+  id: "inc-courier-link-2026",
+  _fixtureNotice: FIXTURE_NOTICE,
+  title: "Unverified Postal Delivery Address Link",
+  source: "SMS from VK-INDPST",
+  timestamp: "2 days ago at 11:20 AM",
+  riskLevel: "CAUTION",
+  status: "REVIEWED",
+  recommendedAction: "USE_OFFICIAL_CHANNEL",
+  additionalActions: ["DO_NOT_INSTALL_REMOTE_ACCESS"],
+  claimedIdentity: "India Post Delivery",
+  channel: "LINK",
+  summary:
+    "SMS notification claiming an undelivered parcel due to an incomplete street address, directing to an unverified third-party tracking link.",
+  outcome: "User verified tracking number on official portal; SMS link was not opened.",
+  signals: [
+    {
+      id: "sig-c1",
+      title: "Unverified Tracking URL",
+      description: "Shortened domain link unrelated to official indiapost.gov.in domain.",
+      severity: "CAUTION",
+      category: "PHISHING_LINK",
+      timestamp: "11:20 AM",
+      highlightedText: "update-indpost-address.com/track",
+    },
+  ],
+  evidence: [
+    {
+      id: "evi-c1",
+      title: "SMS Message Content",
+      callerOrSource: "VK-INDPST",
+      timestamp: "11:20 AM",
+      transcriptSnippet:
+        "Your parcel delivery has been paused due to incorrect street address. Please confirm your details within 12h: http://update-indpost-address.com/track",
+      severity: "CAUTION",
+      tags: ["SMS Phishing", "Unverified Domain"],
+    },
+  ],
+  timeline: [
+    {
+      id: "tl-c1",
+      timestamp: "11:20:00 AM",
+      title: "SMS Received",
+      detail: "Unsolicited text received regarding parcel address issue.",
+      riskLevel: "CAUTION",
+      eventType: "MESSAGE",
+    },
+    {
+      id: "tl-c2",
+      timestamp: "11:21:15 AM",
+      title: "Domain Verification Warning",
+      detail: "Link domain was flagged as unrelated to registered postal services.",
+      riskLevel: "CAUTION",
+      eventType: "LINK",
+    },
+    {
+      id: "tl-c3",
+      timestamp: "11:22:00 AM",
+      title: "Official Channel Advised",
+      detail: "User advised to check tracking solely on official portal.",
+      riskLevel: "LOW",
+      eventType: "ACTION",
+    },
+  ],
+};
+
+export const utilityQueryIncident: FixtureIncidentDetail = {
+  id: "inc-utility-query-2026",
+  _fixtureNotice: FIXTURE_NOTICE,
+  title: "Routine Maintenance Notification Inquiry",
+  source: "+91 11 2345 6789 (Verified Provider)",
+  timestamp: "3 days ago at 02:10 PM",
+  riskLevel: "LOW",
+  status: "RESOLVED",
+  recommendedAction: "CONTINUE_MONITORING",
+  claimedIdentity: "Delhi Vidyut Board",
+  channel: "CALL",
+  summary:
+    "Informational call confirming scheduled grid maintenance in the residential sector. No payment or credentials requested.",
+  outcome: "Call completed normally with zero suspicious prompts.",
+  signals: [],
+  evidence: [],
+  timeline: [
+    {
+      id: "tl-u1",
+      timestamp: "02:10:00 PM",
+      title: "Call Connected",
+      detail: "Automated notification of scheduled maintenance.",
+      riskLevel: "LOW",
+      eventType: "CALL",
+    },
+    {
+      id: "tl-u2",
+      timestamp: "02:11:30 PM",
+      title: "Call Concluded",
+      detail: "No credentials or payment requests observed.",
+      riskLevel: "LOW",
+      eventType: "SYSTEM",
+    },
+  ],
+};
+
+const toIncidentItem = (detail: FixtureIncidentDetail): IncidentItem => ({
+  id: detail.id,
+  title: detail.title,
+  source: detail.source,
+  timestamp: detail.timestamp,
+  riskLevel: detail.riskLevel,
+  actionTaken: detail.recommendedAction,
+  summary: detail.summary,
+  signalCount: detail.signals.length,
+  claimedIdentity: detail.claimedIdentity,
+  channel: detail.channel,
+});
+
 export const sampleIncidentsList: IncidentItem[] = [
-  {
-    id: bankImpersonationIncident.id,
-    title: bankImpersonationIncident.title,
-    source: bankImpersonationIncident.source,
-    timestamp: bankImpersonationIncident.timestamp,
-    riskLevel: bankImpersonationIncident.riskLevel,
-    actionTaken: bankImpersonationIncident.recommendedAction,
-    summary: bankImpersonationIncident.summary,
-    signalCount: bankImpersonationIncident.signals.length,
-  },
-  {
-    id: familyImpersonationIncident.id,
-    title: familyImpersonationIncident.title,
-    source: familyImpersonationIncident.source,
-    timestamp: familyImpersonationIncident.timestamp,
-    riskLevel: familyImpersonationIncident.riskLevel,
-    actionTaken: familyImpersonationIncident.recommendedAction,
-    summary: familyImpersonationIncident.summary,
-    signalCount: familyImpersonationIncident.signals.length,
-  },
+  toIncidentItem(bankImpersonationIncident),
+  toIncidentItem(familyImpersonationIncident),
+  toIncidentItem(courierLinkIncident),
+  toIncidentItem(utilityQueryIncident),
 ];
+
+export const allFixtureIncidents: Record<string, FixtureIncidentDetail> = {
+  [bankImpersonationIncident.id]: bankImpersonationIncident,
+  [familyImpersonationIncident.id]: familyImpersonationIncident,
+  [courierLinkIncident.id]: courierLinkIncident,
+  [utilityQueryIncident.id]: utilityQueryIncident,
+};

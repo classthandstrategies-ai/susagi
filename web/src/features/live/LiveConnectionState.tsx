@@ -31,7 +31,7 @@ export const LiveConnectionState: React.FC<LiveConnectionStateProps> = () => {
 
       <div className="space-y-2">
         <h2 id="standby-heading" className="text-xl sm:text-2xl font-bold text-primary">
-          Not connected to an active protected call
+          Device service not connected
         </h2>
         <p className="text-sm text-secondary max-w-lg mx-auto leading-relaxed">
           Live risk information will appear here when a supported SuSagi device or service connects to this companion.
@@ -42,7 +42,7 @@ export const LiveConnectionState: React.FC<LiveConnectionStateProps> = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
         <div className="bg-surfaceElevated rounded-xl p-3.5 border border-subtle">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-muted mb-1">
-            Device Protection
+            Device Service
           </div>
           <div className="text-xs font-semibold text-primary">
             Not connected

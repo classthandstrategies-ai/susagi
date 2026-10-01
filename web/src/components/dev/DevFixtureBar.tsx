@@ -106,7 +106,7 @@ export const DevFixtureBar: React.FC = () => {
 
           <div className="space-y-1.5 pt-1 border-t border-subtle">
             <div className="text-[10px] uppercase font-semibold text-muted">
-              Risk Scenarios (Live Defense)
+              Live Defense Scenarios
             </div>
             <div className="grid grid-cols-2 gap-1.5">
               <button
@@ -152,6 +152,80 @@ export const DevFixtureBar: React.FC = () => {
                 }`}
               >
                 Critical Alert
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5 pt-1 border-t border-subtle">
+            <div className="text-[10px] uppercase font-semibold text-muted">
+              Activity Ledger Fixtures
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => setFixture("mixed")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "mixed"
+                    ? "bg-brand text-white font-semibold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Mixed History
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("bank")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "bank"
+                    ? "bg-risk-critical text-white font-bold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Bank Incident
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("family")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "family"
+                    ? "bg-risk-high text-void font-bold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Family Incident
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("empty")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "empty"
+                    ? "bg-surfaceHighlight text-primary font-bold border border-default"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Empty State
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("loading")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "loading"
+                    ? "bg-surfaceHighlight text-primary font-bold border border-default"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Loading Skeleton
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("error")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "error"
+                    ? "bg-risk-caution text-void font-bold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Error State
               </button>
             </div>
           </div>
