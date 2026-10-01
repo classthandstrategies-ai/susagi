@@ -67,19 +67,19 @@ export const ProtectionOverview: React.FC<ProtectionOverviewProps> = ({
                   <button
                     type="button"
                     onClick={onOpenLinkCheck}
-                    className="font-semibold text-brand hover:text-brandLight transition-colors text-xs focus-visible:ring-2 focus-visible:ring-brandLight rounded px-1"
+                    className="min-h-[48px] px-3 py-2 font-semibold text-brand hover:text-brandLight transition-colors text-xs focus-visible:ring-2 focus-visible:ring-brandLight rounded-lg inline-flex items-center cursor-pointer"
                   >
                     Inspect Link
                   </button>
                 ) : cap.primaryActionHref ? (
                   <Link
                     href={cap.primaryActionHref}
-                    className="font-semibold text-brand hover:text-brandLight transition-colors text-xs"
+                    className="min-h-[48px] px-3 py-2 font-semibold text-brand hover:text-brandLight transition-colors text-xs focus-visible:ring-2 focus-visible:ring-brandLight rounded-lg inline-flex items-center"
                   >
                     {cap.primaryActionLabel}
                   </Link>
                 ) : (
-                  <span className="text-muted text-[11px]">Mobile only</span>
+                  <span className="text-muted text-[11px] py-2">Mobile only</span>
                 )}
               </div>
             </div>

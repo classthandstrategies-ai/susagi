@@ -188,7 +188,7 @@ export const SideNavigation: React.FC = () => {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight",
+                "flex items-center justify-between min-h-[48px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight",
                 isActive
                   ? "bg-surfaceElevated text-primary font-semibold border border-default shadow-sm"
                   : "text-secondary hover:text-primary hover:bg-surfaceHighlight"
@@ -229,7 +229,7 @@ export const SideNavigation: React.FC = () => {
           href="/settings"
           aria-current={pathname === "/settings" ? "page" : undefined}
           className={cn(
-            "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight",
+            "flex items-center gap-3 min-h-[48px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight",
             pathname === "/settings"
               ? "bg-surfaceElevated text-primary font-semibold border border-default"
               : "text-secondary hover:text-primary hover:bg-surfaceHighlight"

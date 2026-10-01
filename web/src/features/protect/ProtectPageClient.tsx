@@ -54,7 +54,7 @@ export const ProtectPageClient: React.FC<ProtectPageClientProps> = ({
         <button
           type="button"
           onClick={() => setIsLinkCheckOpen(true)}
-          className="px-3.5 py-1.5 rounded-lg bg-brand hover:bg-blue-600 text-white font-semibold shrink-0 transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
+          className="min-h-[48px] px-4 py-2.5 rounded-xl bg-brand hover:bg-brandLight text-white font-semibold text-xs shrink-0 transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
         >
           Inspect a Link
         </button>

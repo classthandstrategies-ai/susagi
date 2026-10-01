@@ -24,7 +24,6 @@ export class OfflineGuardianService implements IGuardianService {
     // Normal production companion runtime: no connected guardian backend
     return {
       guardians: [],
-      securityPassphraseConfigured: false,
       activeAlertCount: 0,
     };
   }
@@ -44,7 +43,6 @@ export function getDevFixtureGuardianCircle(
       status: "UNAVAILABLE",
       circle: {
         guardians: [],
-        securityPassphraseConfigured: false,
         activeAlertCount: 0,
       },
       isFixtureMode: false,
@@ -59,7 +57,6 @@ export function getDevFixtureGuardianCircle(
         status: "LOADING",
         circle: {
           guardians: [],
-          securityPassphraseConfigured: false,
           activeAlertCount: 0,
         },
         isFixtureMode: true,
@@ -70,7 +67,6 @@ export function getDevFixtureGuardianCircle(
         status: "ERROR",
         circle: {
           guardians: [],
-          securityPassphraseConfigured: false,
           activeAlertCount: 0,
         },
         errorMessage: "Guardian service is currently unavailable. Could not fetch trusted circle.",
@@ -82,7 +78,6 @@ export function getDevFixtureGuardianCircle(
         status: "EMPTY",
         circle: {
           guardians: [],
-          securityPassphraseConfigured: false,
           activeAlertCount: 0,
         },
         isFixtureMode: true,

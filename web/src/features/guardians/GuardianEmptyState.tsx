@@ -91,7 +91,7 @@ export const GuardianEmptyState: React.FC<GuardianEmptyStateProps> = ({
             Trusted Members
           </div>
           <div className="text-xs font-semibold text-secondary">
-            0 connected
+            Not connected
           </div>
         </div>
       </div>

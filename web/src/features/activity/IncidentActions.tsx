@@ -38,7 +38,7 @@ const getActionGuidance = (action: ProtectiveAction): { title: string; descripti
     case "VERIFY_IDENTITY":
       return {
         title: "Verify Identity",
-        description: "Confirm the caller or sender's identity through trusted mutual contacts, a secret family passphrase, or an out-of-band channel.",
+        description: "Confirm the caller or sender's identity through trusted mutual contacts or an out-of-band channel.",
       };
     case "CONTINUE_MONITORING":
     default:

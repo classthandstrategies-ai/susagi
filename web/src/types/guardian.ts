@@ -12,6 +12,5 @@ export interface GuardianContact {
 
 export interface GuardianCircle {
   guardians: GuardianContact[];
-  securityPassphraseConfigured: boolean;
   activeAlertCount: number;
 }

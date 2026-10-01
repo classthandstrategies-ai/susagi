@@ -7,7 +7,6 @@ export interface FixtureGuardianCircle extends GuardianCircle {
 
 export const guardianCircleFixture: FixtureGuardianCircle = {
   _fixtureNotice: FIXTURE_NOTICE,
-  securityPassphraseConfigured: true,
   activeAlertCount: 0,
   guardians: [
     {

@@ -75,7 +75,7 @@ export const TopBar: React.FC = () => {
           href="/settings"
           aria-label="Settings"
           className={cn(
-            "md:hidden w-9 h-9 rounded-lg bg-surfaceElevated border border-subtle flex items-center justify-center text-muted hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight",
+            "md:hidden min-w-[48px] min-h-[48px] rounded-xl bg-surfaceElevated border border-subtle flex items-center justify-center text-muted hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight",
             pathname === "/settings" && "text-brand border-brand/50"
           )}
         >

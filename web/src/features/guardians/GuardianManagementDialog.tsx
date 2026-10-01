@@ -236,9 +236,9 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
             </div>
 
             <div className="rounded-xl bg-surfaceElevated p-3.5 border border-subtle space-y-1">
-              <h4 className="text-xs font-semibold text-primary">2. Voice Synthesis Protection</h4>
+              <h4 className="text-xs font-semibold text-primary">2. Out-of-Band Verification</h4>
               <p className="text-xs text-secondary leading-relaxed">
-                A pre-shared secret family passphrase provides a human safety anchor against synthetic or cloned voice calls.
+                Trusted contacts verify uncharacteristic demands out of band through a future connected verification service.
               </p>
             </div>
 

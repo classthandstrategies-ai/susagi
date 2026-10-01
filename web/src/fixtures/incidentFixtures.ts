@@ -146,7 +146,7 @@ export const familyImpersonationIncident: FixtureIncidentDetail = {
       id: "tl-f2",
       timestamp: "04:16:12 PM",
       title: "Identity Challenge Prompt",
-      detail: "SuSagi advised user to verify identity via family secret passphrase.",
+      detail: "SuSagi advised user to verify identity through trusted out-of-band channel.",
       riskLevel: "HIGH",
       eventType: "VERIFICATION",
     },
