@@ -58,9 +58,9 @@ export const DEFAULT_CAPABILITIES: ProtectionCapability[] = [
     statusLabel: "Available in companion UI",
     whereItRuns: "SuSagi Web Companion",
     whatItDoes:
-      "Validates URL format, identifies misleading top-level domains, and gives safety guidance without contacting untrusted hosts.",
+      "Inspects the link's URL structure, hostname, protocol, and path before you open it.",
     whatYouCanDo:
-      "Paste any link into the companion inspector to review protocol safety, host identity, and safe navigation steps.",
+      "Review the address carefully and use an official website or trusted source if anything looks unfamiliar.",
     primaryActionLabel: "Check a Link",
     isInteractiveOnWeb: true,
   },

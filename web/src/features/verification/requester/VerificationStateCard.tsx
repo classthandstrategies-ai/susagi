@@ -55,7 +55,7 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
             Ready to verify identity
           </h2>
           <p className="text-sm text-secondary leading-relaxed">
-            You can ask <strong className="text-primary">{verifierName}</strong> to verify if this request is legitimate before sending money or sharing information.
+            Ask <strong className="text-primary">{verifierName}</strong> to confirm whether this request is actually from them before sending money or sharing information.
           </p>
         </div>
 
@@ -124,12 +124,12 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
             </h2>
           </div>
           <p className="text-sm text-secondary leading-relaxed">
-            {outcomeNote || `${verifierName} confirmed that this request is legitimate.`}
+            {outcomeNote || `${verifierName} confirmed that this request is from them.`}
           </p>
         </div>
 
         <p className="text-xs text-secondary leading-relaxed pt-2 border-t border-subtle">
-          Always ensure transactions follow standard secure payment methods.
+          Identity confirmation does not by itself mean a payment or transaction is safe.
         </p>
       </div>
     );
@@ -196,7 +196,10 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
           Identity verification is in standby
         </h2>
         <p className="text-sm text-secondary leading-relaxed">
-          When an active call asks for emergency funds or credentials, you can trigger a verification challenge here to verify the caller with your Guardian Circle.
+          When identity verification is connected, you can ask someone in your Guardian Circle to confirm whether a sensitive request is really from them.
+        </p>
+        <p className="text-xs text-secondary leading-relaxed">
+          Contact the person another way before continuing.
         </p>
       </div>
 

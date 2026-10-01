@@ -40,7 +40,7 @@ export const HomePageClient: React.FC<HomePageClientProps> = ({
           Your protection
         </h1>
         <p className="text-sm text-secondary leading-relaxed">
-          SuSagi monitors suspicious calls, helps verify human identities, and checks unsafe links.
+          SuSagi helps you review suspicious activity, coordinate identity checks, and inspect links before you open them.
         </p>
       </header>
 
@@ -216,7 +216,7 @@ export const HomePageClient: React.FC<HomePageClientProps> = ({
             Check a suspicious link
           </h2>
           <p className="text-xs sm:text-sm text-secondary">
-            Paste a link before you open it to inspect domain safety.
+            Paste a link before you open it to inspect its address and structure.
           </p>
         </div>
 
