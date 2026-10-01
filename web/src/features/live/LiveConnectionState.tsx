@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { LiveConnectionState as ConnectionStateType } from "@/types/risk";
@@ -10,11 +12,11 @@ export const LiveConnectionState: React.FC<LiveConnectionStateProps> = () => {
   return (
     <section
       aria-labelledby="standby-heading"
-      className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-6 max-w-2xl mx-auto my-4 text-center"
+      className="rounded-2xl bg-surface border border-subtle p-8 sm:p-10 space-y-6 text-center max-w-xl mx-auto shadow-sm"
     >
       <div className="w-14 h-14 rounded-2xl bg-surfaceElevated border border-subtle mx-auto flex items-center justify-center text-muted">
         <svg
-          className="w-7 h-7"
+          className="w-7 h-7 text-secondary"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -30,57 +32,48 @@ export const LiveConnectionState: React.FC<LiveConnectionStateProps> = () => {
       </div>
 
       <div className="space-y-2">
-        <h2 id="standby-heading" className="text-xl sm:text-2xl font-bold text-primary">
-          Device service not connected
+        <h2 id="standby-heading" className="text-xl sm:text-2xl font-semibold text-primary">
+          No active protected call
         </h2>
-        <p className="text-sm text-secondary max-w-lg mx-auto leading-relaxed">
-          Live risk information will appear here when a supported SuSagi device or service connects to this companion.
+        <p className="text-sm text-secondary leading-relaxed">
+          When you receive or make a call on your protected Android phone, real-time safety guidance and alerts will appear here automatically.
         </p>
       </div>
 
-      {/* Honest Connection Status Breakdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+      {/* Honest Status Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
         <div className="bg-surfaceElevated rounded-xl p-3.5 border border-subtle">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted mb-1">
-            Device Service
+          <div className="text-xs font-medium text-muted mb-0.5">
+            Phone protection
           </div>
           <div className="text-xs font-semibold text-primary">
-            Not connected
+            Waiting for call
           </div>
         </div>
 
         <div className="bg-surfaceElevated rounded-xl p-3.5 border border-subtle">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted mb-1">
-            Risk Assessment
+          <div className="text-xs font-medium text-muted mb-0.5">
+            Identity verification
           </div>
-          <div className="text-xs font-semibold text-secondary">
-            Waiting for connection
-          </div>
-        </div>
-
-        <div className="bg-surfaceElevated rounded-xl p-3.5 border border-subtle">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted mb-1">
-            Identity Verification
-          </div>
-          <div className="text-xs font-semibold text-secondary">
-            Unavailable
+          <div className="text-xs font-semibold text-primary">
+            Ready on demand
           </div>
         </div>
       </div>
 
-      {/* Next Step Navigation Actions */}
+      {/* Quick Links */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Link
           href="/protect"
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center min-h-[44px] inline-flex items-center justify-center"
         >
-          Review Protect Settings
+          Review protect settings
         </Link>
         <Link
           href="/activity"
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-xs font-medium text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center min-h-[44px] inline-flex items-center justify-center"
         >
-          View Activity
+          View activity history
         </Link>
       </div>
     </section>

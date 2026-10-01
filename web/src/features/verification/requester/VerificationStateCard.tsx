@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { VerificationSession, VerificationStatus } from "@/types/verification";
@@ -17,22 +19,49 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
   isFixtureMode,
   onPreviewRequest,
 }) => {
+  const callerName = session?.requesterName || "Caller claiming identity";
+  const verifierName = session?.recipientName || "Trusted guardian";
+  const claimText = session?.claim || "Requesting urgent transfer of funds";
+
+  // Person-first presentation
+  const renderPersonHeader = () => (
+    <div className="flex items-center gap-3.5 pb-4 border-b border-subtle">
+      <div className="w-12 h-12 rounded-full bg-surfaceElevated border border-subtle flex items-center justify-center text-primary font-semibold text-base shrink-0">
+        {callerName.charAt(0)}
+      </div>
+      <div className="space-y-0.5">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-primary text-base">
+            {callerName}
+          </span>
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-surfaceElevated text-secondary border border-subtle">
+            Claimed caller
+          </span>
+        </div>
+        <p className="text-xs text-muted">
+          {session?.requesterPhone ? session.requesterPhone : "Phone call in progress"}
+        </p>
+      </div>
+    </div>
+  );
+
   if (status === "READY") {
     return (
-      <div className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-5">
-        <div className="w-12 h-12 rounded-2xl bg-brandSoft border border-brand/30 flex items-center justify-center text-brand">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-          </svg>
-        </div>
+      <div className="rounded-2xl bg-surface border border-subtle p-6 space-y-5 shadow-sm">
+        {session && renderPersonHeader()}
 
-        <div className="space-y-1.5">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary">
-            Ready to Request Confirmation
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold text-primary">
+            Ready to verify identity
           </h2>
           <p className="text-sm text-secondary leading-relaxed">
-            You can ask a trusted person to confirm this claim before taking any action.
+            You can ask <strong className="text-primary">{verifierName}</strong> to verify if this request is legitimate before sending money or sharing information.
           </p>
+        </div>
+
+        <div className="rounded-xl bg-surfaceElevated border border-subtle p-4 space-y-1 text-xs">
+          <span className="text-muted font-medium">Claimed purpose:</span>
+          <p className="text-primary font-medium">{claimText}</p>
         </div>
 
         {isFixtureMode && onPreviewRequest && (
@@ -40,12 +69,10 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
             <button
               type="button"
               onClick={onPreviewRequest}
-              className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-brand hover:bg-brandLight text-white font-semibold text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center gap-2"
+              className="min-h-[44px] px-5 py-2.5 rounded-xl bg-brand hover:bg-brandLight text-white font-medium text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center gap-2"
             >
-              <span>Preview Verification Flow</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
+              <span>Send verification request</span>
+              <span aria-hidden="true">›</span>
             </button>
           </div>
         )}
@@ -55,56 +82,54 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
 
   if (status === "PENDING") {
     return (
-      <div className="rounded-2xl bg-surface border border-risk-caution/30 p-6 sm:p-8 space-y-5">
-        <div className="w-12 h-12 rounded-2xl bg-risk-caution/15 border border-risk-caution/30 flex items-center justify-center text-risk-caution">
-          <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-          </svg>
-        </div>
+      <div className="rounded-2xl bg-surface border border-risk-caution p-6 space-y-5 shadow-sm">
+        {session && renderPersonHeader()}
 
         <div className="space-y-1.5">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary">
-            Waiting for Confirmation
-          </h2>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-risk-caution animate-pulse" />
+            <h2 className="text-lg font-semibold text-primary">
+              Waiting for confirmation
+            </h2>
+          </div>
           <p className="text-sm text-secondary leading-relaxed">
-            Awaiting response from your trusted person{session?.recipientName ? ` (${session.recipientName})` : ""}.
+            Awaiting response from <strong className="text-primary">{verifierName}</strong>.
           </p>
         </div>
 
-        <div className="rounded-xl bg-risk-caution/10 border border-risk-caution/25 p-4 text-xs text-risk-caution font-medium leading-relaxed">
-          <strong>Protective Rule:</strong> Do not send money or share sensitive information while verification is pending.
+        <div className="rounded-xl bg-risk-caution-soft border border-risk-caution/30 p-4 text-xs text-risk-caution font-medium leading-relaxed">
+          Do not send money or share sensitive information while verification is pending.
         </div>
 
-        {session?.expiresAt && (
-          <div className="text-xs font-mono text-muted">
-            Window concludes: {session.expiresAt}
-          </div>
-        )}
+        <div className="rounded-xl bg-surfaceElevated border border-subtle p-4 space-y-1 text-xs">
+          <span className="text-muted font-medium">Claimed purpose:</span>
+          <p className="text-primary font-medium">{claimText}</p>
+        </div>
       </div>
     );
   }
 
   if (status === "VERIFIED") {
     return (
-      <div className="rounded-2xl bg-surface border border-risk-low/40 p-6 sm:p-8 space-y-5">
-        <div className="w-12 h-12 rounded-2xl bg-risk-low/15 border border-risk-low/30 flex items-center justify-center text-risk-low">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        </div>
+      <div className="rounded-2xl bg-surface border border-risk-low p-6 space-y-5 shadow-sm">
+        {session && renderPersonHeader()}
 
         <div className="space-y-1.5">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary">
-            Identity Confirmed by Trusted Person
-          </h2>
-          <p className="text-sm text-primary font-medium leading-relaxed">
-            {outcomeNote || "Your trusted contact verified that this request originated from them."}
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-risk-low text-white text-xs flex items-center justify-center font-bold">
+              ✓
+            </span>
+            <h2 className="text-lg font-semibold text-primary">
+              Identity confirmed
+            </h2>
+          </div>
+          <p className="text-sm text-secondary leading-relaxed">
+            {outcomeNote || `${verifierName} confirmed that this request is legitimate.`}
           </p>
         </div>
 
         <p className="text-xs text-secondary leading-relaxed pt-2 border-t border-subtle">
-          Verification confirms the human response recorded in the session. Always ensure transactions follow normal authorized channels.
+          Always ensure transactions follow standard secure payment methods.
         </p>
       </div>
     );
@@ -112,24 +137,25 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
 
   if (status === "REJECTED") {
     return (
-      <div className="rounded-2xl bg-surface border border-risk-critical/40 p-6 sm:p-8 space-y-5">
-        <div className="w-12 h-12 rounded-2xl bg-risk-critical/15 border border-risk-critical/30 flex items-center justify-center text-risk-critical">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </div>
+      <div className="rounded-2xl bg-surface border border-risk-critical p-6 space-y-5 shadow-sm">
+        {session && renderPersonHeader()}
 
         <div className="space-y-1.5">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary">
-            Identity Could Not Be Verified
-          </h2>
-          <p className="text-sm text-risk-critical font-medium leading-relaxed">
-            {outcomeNote || "Your trusted contact indicated that this request is not from them."}
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-risk-critical text-white text-xs flex items-center justify-center font-bold">
+              !
+            </span>
+            <h2 className="text-lg font-semibold text-primary">
+              Identity could not be verified
+            </h2>
+          </div>
+          <p className="text-sm text-secondary leading-relaxed">
+            {outcomeNote || `${verifierName} says this request is not from them.`}
           </p>
         </div>
 
-        <div className="rounded-xl bg-risk-critical/10 border border-risk-critical/20 p-4 text-xs text-risk-critical font-semibold leading-relaxed">
-          Action Required: Do not send money, execute UPI transfers, or share any OTPs or credentials.
+        <div className="rounded-xl bg-risk-critical-soft border border-risk-critical/30 p-4 text-xs text-risk-critical font-medium leading-relaxed">
+          Do not send money or share sensitive information. End the call immediately.
         </div>
       </div>
     );
@@ -137,16 +163,12 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
 
   if (status === "EXPIRED") {
     return (
-      <div className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-5">
-        <div className="w-12 h-12 rounded-2xl bg-surfaceElevated border border-subtle flex items-center justify-center text-muted">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
+      <div className="rounded-2xl bg-surface border border-subtle p-6 space-y-5 shadow-sm">
+        {session && renderPersonHeader()}
 
-        <div className="space-y-1.5">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary">
-            Verification Expired
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold text-primary">
+            Verification expired
           </h2>
           <p className="text-sm text-secondary leading-relaxed">
             No response was received before the verification window ended.
@@ -154,46 +176,42 @@ export const VerificationStateCard: React.FC<VerificationStateCardProps> = ({
         </div>
 
         <div className="rounded-xl bg-surfaceElevated border border-subtle p-4 text-xs text-secondary leading-relaxed">
-          Guidance: Contact the person independently using a trusted, verified phone number before continuing.
+          Contact the person independently using a trusted, verified phone number before continuing.
         </div>
       </div>
     );
   }
 
-  // UNAVAILABLE (Normal production companion runtime)
+  // UNAVAILABLE (Standby)
   return (
-    <div className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-6 text-center max-w-2xl mx-auto my-4">
-      <div className="w-14 h-14 rounded-2xl bg-surfaceElevated border border-subtle mx-auto flex items-center justify-center text-muted">
+    <div className="rounded-2xl bg-surface border border-subtle p-8 space-y-6 text-center max-w-xl mx-auto shadow-sm">
+      <div className="w-14 h-14 rounded-2xl bg-surfaceElevated border border-subtle mx-auto flex items-center justify-center text-secondary">
         <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
         </svg>
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-xl sm:text-2xl font-bold text-primary">
-          Identity verification is unavailable right now
+        <h2 className="text-xl font-semibold text-primary">
+          Identity verification is in standby
         </h2>
-        <p className="text-sm text-secondary max-w-lg mx-auto leading-relaxed">
-          Identity verification is not connected yet. Contact the person independently before continuing.
+        <p className="text-sm text-secondary leading-relaxed">
+          When an active call asks for emergency funds or credentials, you can trigger a verification challenge here to verify the caller with your Guardian Circle.
         </p>
-      </div>
-
-      <div className="rounded-xl bg-surfaceElevated border border-subtle p-4 text-left text-xs text-secondary leading-relaxed max-w-lg mx-auto">
-        <strong>Safety Guidance:</strong> Do not send money or share sensitive information while identity is uncertain.
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Link
           href="/live"
-          className="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight inline-flex items-center justify-center text-center"
+          className="min-h-[44px] px-4 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight inline-flex items-center justify-center"
         >
-          Back to Live Defense
+          View Live Defense
         </Link>
         <Link
           href="/guardians"
-          className="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight inline-flex items-center justify-center text-center"
+          className="min-h-[44px] px-4 py-2.5 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-xs font-medium text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight inline-flex items-center justify-center"
         >
-          View Guardian Circle
+          Manage Guardian Circle
         </Link>
       </div>
     </div>

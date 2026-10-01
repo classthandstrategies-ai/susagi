@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -22,7 +24,7 @@ export const SecondarySafetyAction: React.FC<SecondarySafetyActionProps> = ({
   type = "button",
 }) => {
   const baseStyles = cn(
-    "inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[48px] rounded-xl text-sm font-medium text-secondary hover:text-primary bg-transparent hover:bg-surface border border-subtle hover:border-default active:bg-surfaceElevated transition-colors duration-150 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-brandLight focus-visible:ring-offset-2 focus-visible:ring-offset-void",
+    "inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-medium text-secondary hover:text-primary bg-surface hover:bg-surfaceElevated border border-subtle hover:border-default active:bg-surfaceHighlight transition-colors duration-150 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-brandLight focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
     disabled && "opacity-50 cursor-not-allowed pointer-events-none",
     className
   );

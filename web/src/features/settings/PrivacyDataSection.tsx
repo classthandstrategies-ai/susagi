@@ -23,54 +23,44 @@ export const PrivacyDataSection: React.FC = () => {
       <div className="space-y-1">
         <h2
           id="privacy-heading"
-          className="text-base sm:text-lg font-bold text-primary"
+          className="text-lg font-semibold text-primary"
         >
-          Privacy & Data Disclosures
+          Privacy & data
         </h2>
         <p className="text-xs sm:text-sm text-secondary leading-relaxed">
           Guarantees regarding data collection, audio streams, and browser persistence.
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="rounded-2xl bg-surface border border-subtle divide-y divide-subtle shadow-sm overflow-hidden">
         {/* Product Analytics Disclosures */}
-        <div className="rounded-xl bg-surface border border-subtle p-4 space-y-1">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-primary">
-              No product analytics configured
-            </h3>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surfaceElevated text-secondary border border-subtle">
-              STANDALONE CLIENT
-            </span>
+        <div className="p-5 space-y-1">
+          <div className="text-sm font-semibold text-primary">
+            No analytics or third-party trackers
           </div>
           <p className="text-xs text-secondary leading-relaxed">
-            This web companion does not currently include product analytics or behavioral tracking code.
+            This web companion operates locally and does not contain advertising pixels, behavioral trackers, or third-party analytics scripts.
           </p>
         </div>
 
         {/* Microphone and Audio Access */}
-        <div className="rounded-xl bg-surface border border-subtle p-4 space-y-1">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-primary">
-              No Audio or Call Ingestion
-            </h3>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surfaceElevated text-secondary border border-subtle">
-              NO PERMISSION
-            </span>
+        <div className="p-5 space-y-1">
+          <div className="text-sm font-semibold text-primary">
+            No browser microphone access
           </div>
           <p className="text-xs text-secondary leading-relaxed">
-            This web companion does not currently request microphone access.
+            The web companion does not record or request access to your computer&apos;s microphone. All audio screening happens on-device on your Android phone.
           </p>
         </div>
 
         {/* Local Storage Only */}
-        <div className="rounded-xl bg-surface border border-subtle p-4 space-y-3">
+        <div className="p-5 space-y-3">
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-primary">
-              Browser Storage Boundary
-            </h3>
+            <div className="text-sm font-semibold text-primary">
+              Local device storage
+            </div>
             <p className="text-xs text-secondary leading-relaxed">
-              Companion state (such as reduced motion preferences) is stored strictly on this device inside your browser&apos;s standard local storage. No credentials or encryption keys are written.
+              Your preferences (such as reduced motion) are stored locally in your browser. No passwords or cryptographic keys are ever persisted unencrypted.
             </p>
           </div>
 
@@ -78,9 +68,9 @@ export const PrivacyDataSection: React.FC = () => {
             <button
               type="button"
               onClick={handleClearPreferences}
-              className="min-h-[48px] px-4 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center text-center"
+              className="min-h-[44px] px-4 py-2 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-xs font-medium text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center text-center"
             >
-              Reset Local Preferences
+              Reset local preferences
             </button>
             {clearedMessage && (
               <span className="text-xs font-medium text-risk-low bg-risk-low-soft px-3 py-1.5 rounded-lg border border-risk-low">

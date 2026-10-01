@@ -17,7 +17,7 @@ export const GuardianCirclePageClient: React.FC<GuardianCirclePageClientProps> =
 }) => {
   const { status, circle, errorMessage, isFixtureMode } = initialState;
 
-  // Local in-memory state for development fixture interaction testing (Step 6)
+  // Local in-memory state for development fixture interaction testing
   const [guardians, setGuardians] = useState<GuardianContact[]>(circle.guardians);
   const [dialogMode, setDialogMode] = useState<GuardianDialogMode>("NONE");
   const [selectedGuardian, setSelectedGuardian] = useState<GuardianContact | null>(null);
@@ -72,7 +72,7 @@ export const GuardianCirclePageClient: React.FC<GuardianCirclePageClientProps> =
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-3xl mx-auto">
       {/* Header */}
       <GuardianCircleHeader
         isFixtureMode={isFixtureMode}
@@ -86,8 +86,8 @@ export const GuardianCirclePageClient: React.FC<GuardianCirclePageClientProps> =
 
       {/* Loading State */}
       {status === "LOADING" && (
-        <div role="status" aria-label="Loading guardian circle" className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-pulse">
-          {[1, 2, 3].map((i) => (
+        <div role="status" aria-label="Loading guardian circle" className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+          {[1, 2].map((i) => (
             <div key={i} className="h-44 rounded-2xl bg-surface border border-subtle p-5" />
           ))}
           <span className="sr-only">Loading guardian circle...</span>
@@ -96,8 +96,8 @@ export const GuardianCirclePageClient: React.FC<GuardianCirclePageClientProps> =
 
       {/* Error State */}
       {status === "ERROR" && (
-        <div className="rounded-2xl bg-surface border border-risk-caution/30 p-8 text-center space-y-3">
-          <h2 className="text-lg font-bold text-primary">Guardian Service Unavailable</h2>
+        <div className="rounded-2xl bg-surface border border-risk-caution p-8 text-center space-y-3 shadow-sm">
+          <h2 className="text-lg font-semibold text-primary">Guardian service unavailable</h2>
           <p className="text-sm text-secondary">{errorMessage || "Could not retrieve guardian circle."}</p>
         </div>
       )}

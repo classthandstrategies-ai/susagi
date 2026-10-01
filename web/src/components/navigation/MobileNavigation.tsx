@@ -100,7 +100,7 @@ export const MobileNavigation: React.FC = () => {
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-subtle h-16 flex items-center justify-around px-2"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-subtle h-16 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)]"
     >
       {primaryItems.map((item) => {
         const isActive =
@@ -114,12 +114,12 @@ export const MobileNavigation: React.FC = () => {
             className={cn(
               "flex flex-col items-center justify-center min-w-[56px] min-h-[48px] py-1 px-2 rounded-xl transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight",
               isActive
-                ? "text-brand font-semibold"
+                ? "text-primary font-semibold"
                 : "text-muted hover:text-secondary"
             )}
           >
             {item.icon(isActive)}
-            <span className="text-[11px] mt-0.5 tracking-tight">{item.name}</span>
+            <span className="text-[11px] mt-0.5 tracking-tight font-medium">{item.name}</span>
           </Link>
         );
       })}

@@ -51,37 +51,34 @@ export const AccessibilitySection: React.FC = () => {
       <div className="space-y-1">
         <h2
           id="accessibility-heading"
-          className="text-base sm:text-lg font-bold text-primary"
+          className="text-lg font-semibold text-primary"
         >
-          Accessibility & Display Preferences
+          Accessibility & display
         </h2>
         <p className="text-xs sm:text-sm text-secondary leading-relaxed">
-          Browser-level ergonomic preferences for high-stress defense scenarios.
+          Display preferences designed for clarity and ease of reading.
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="rounded-2xl bg-surface border border-subtle divide-y divide-subtle shadow-sm overflow-hidden">
         {/* Reduce Motion Toggle */}
-        <div className="rounded-xl bg-surface border border-subtle p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="text-sm font-semibold text-primary">
-              Reduce Motion
+              Reduce motion
             </div>
             <p className="text-xs text-secondary leading-relaxed max-w-xl">
-              Minimizes radar sweeps, blinking indicators, and transitions across Live Defense, Activity, and Verification screens.
+              Minimizes animations, blinking indicators, and transitions across Live Defense and Activity.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <span className="text-xs font-mono text-muted">
-              {reduceMotion ? "REDUCED" : "STANDARD"}
-            </span>
             <button
               type="button"
               role="switch"
               aria-checked={reduceMotion}
               onClick={handleToggleReduceMotion}
-              className={`relative inline-flex min-h-[48px] min-w-[56px] items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer p-1 ${
+              className={`relative inline-flex min-h-[44px] min-w-[56px] items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer p-1 ${
                 reduceMotion
                   ? "bg-brand"
                   : "bg-surfaceElevated border border-subtle"
@@ -97,38 +94,14 @@ export const AccessibilitySection: React.FC = () => {
           </div>
         </div>
 
-        {/* High-Contrast Defense Theme */}
-        <div className="rounded-xl bg-surface border border-subtle p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-primary">
-              High-contrast interface
-            </div>
-            <p className="text-xs text-secondary leading-relaxed max-w-xl">
-              Designed for strong text contrast, visible focus states, and distinct semantic alert colors to support rapid comprehension under stress.
-            </p>
+        {/* High-Contrast Reading Mode info */}
+        <div className="p-5 space-y-1">
+          <div className="text-sm font-semibold text-primary">
+            High-contrast readable surfaces
           </div>
-          <div className="shrink-0 self-start sm:self-auto">
-            <span className="text-xs px-2.5 py-1 rounded-md font-semibold bg-risk-low-soft text-risk-low border border-risk-low">
-              ACTIVE
-            </span>
-          </div>
-        </div>
-
-        {/* Touch Target Standards */}
-        <div className="rounded-xl bg-surface border border-subtle p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-primary">
-              48px minimum important control target
-            </div>
-            <p className="text-xs text-secondary leading-relaxed max-w-xl">
-              All primary interactive controls across mobile, tablet, and desktop companion viewports maintain an enforced minimum 48×48px clickable target area.
-            </p>
-          </div>
-          <div className="shrink-0 self-start sm:self-auto">
-            <span className="text-xs px-2.5 py-1 rounded-md font-semibold bg-surfaceElevated text-secondary border border-subtle">
-              48PX ENFORCED
-            </span>
-          </div>
+          <p className="text-xs text-secondary leading-relaxed">
+            All text and safety guidance cards are styled with high-contrast ratios exceeding WCAG AAA standards for optimal readability on all screens.
+          </p>
         </div>
       </div>
     </section>

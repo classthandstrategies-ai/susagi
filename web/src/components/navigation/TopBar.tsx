@@ -5,28 +5,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
+interface NavLink {
+  name: string;
+  href: string;
+}
+
+const PRIMARY_NAV: NavLink[] = [
+  { name: "Home", href: "/" },
+  { name: "Protect", href: "/protect" },
+  { name: "Activity", href: "/activity" },
+  { name: "Guardians", href: "/guardians" },
+];
+
 export const TopBar: React.FC = () => {
   const pathname = usePathname();
 
-  const getPageTitle = (path: string): string => {
-    if (path === "/") return "Companion Home";
-    if (path.startsWith("/protect")) return "Protection Shield";
-    if (path.startsWith("/live")) return "Live Call Defense";
-    if (path.startsWith("/activity")) return "Activity & Security Audit";
-    if (path.startsWith("/guardians")) return "Guardian Circle";
-    if (path.startsWith("/verification/respond")) return "Verification Responder";
-    if (path.startsWith("/verification")) return "Identity Verification";
-    if (path.startsWith("/settings")) return "Settings & Preferences";
-    return "SuSagi";
-  };
-
   return (
-    <header className="h-16 px-4 sm:px-6 bg-surface/80 backdrop-blur-md border-b border-subtle sticky top-0 z-30 flex items-center justify-between gap-4">
-      {/* Left: Mobile Brand / Page Title */}
-      <div className="flex items-center gap-3">
-        {/* Mobile brand logo */}
-        <div className="md:hidden flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center text-white shrink-0">
+    <header className="h-16 px-4 sm:px-6 lg:px-8 bg-surface/90 backdrop-blur-md border-b border-subtle sticky top-0 z-30 flex items-center justify-between">
+      {/* Brand Identity & Desktop Primary Navigation */}
+      <div className="flex items-center gap-8">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 text-primary font-bold text-lg tracking-tight select-none focus-visible:ring-2 focus-visible:ring-brandLight rounded-lg py-1 px-1.5 -ml-1.5"
+          aria-label="SuSagi Home"
+        >
+          <div className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center text-white shrink-0 shadow-sm">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -42,45 +45,52 @@ export const TopBar: React.FC = () => {
               />
             </svg>
           </div>
-          <span className="font-bold text-base text-primary tracking-tight">
-            SuSagi
-          </span>
-        </div>
+          <span>SuSagi</span>
+        </Link>
 
-        {/* Desktop title / Mobile breadcrumb */}
-        <div className="hidden md:block">
-          <h1 className="text-base sm:text-lg font-semibold text-primary">
-            {getPageTitle(pathname)}
-          </h1>
-        </div>
+        {/* Desktop Restrained Navigation */}
+        <nav
+          aria-label="Primary Navigation"
+          className="hidden md:flex items-center gap-1"
+        >
+          {PRIMARY_NAV.map((item) => {
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight",
+                  isActive
+                    ? "text-primary font-semibold bg-surfaceElevated"
+                    : "text-secondary hover:text-primary hover:bg-surfaceElevated/60"
+                )}
+              >
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* Right: Protection Mode Badge & Mobile Settings Link */}
-      <div className="flex items-center gap-3">
-        <div
-          role="status"
-          aria-label="Companion status: Local Standby"
-          className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-surfaceElevated border border-subtle text-xs text-secondary font-medium"
-        >
-          <span
-            className="w-2 h-2 rounded-full bg-risk-low animate-pulse"
-            aria-hidden="true"
-          />
-          <span className="hidden sm:inline">Companion Standby</span>
-          <span className="sm:hidden">Active</span>
-        </div>
-
-        {/* Mobile Settings Icon */}
+      {/* Right Controls: Settings (visibly secondary) */}
+      <div className="flex items-center gap-2">
         <Link
           href="/settings"
+          aria-current={pathname === "/settings" ? "page" : undefined}
           aria-label="Settings"
           className={cn(
-            "md:hidden min-w-[48px] min-h-[48px] rounded-xl bg-surfaceElevated border border-subtle flex items-center justify-center text-muted hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight",
-            pathname === "/settings" && "text-brand border-brand/50"
+            "min-h-[44px] min-w-[44px] sm:min-w-0 sm:px-3 sm:py-1.5 rounded-lg text-sm font-medium text-secondary hover:text-primary hover:bg-surfaceElevated transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-brandLight",
+            pathname === "/settings" && "text-primary font-semibold bg-surfaceElevated"
           )}
         >
           <svg
-            className="w-4 h-4"
+            className="w-4 h-4 text-muted shrink-0"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -98,6 +108,7 @@ export const TopBar: React.FC = () => {
               d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
+          <span className="hidden sm:inline">Settings</span>
         </Link>
       </div>
     </header>

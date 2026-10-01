@@ -1,59 +1,43 @@
+"use client";
+
 import React from "react";
 
 interface ServiceItem {
   id: string;
   name: string;
-  status: "NOT_CONNECTED" | "STANDBY" | "UNAVAILABLE";
+  status: "CONNECTED" | "STANDBY" | "PHONE_ONLY";
   statusLabel: string;
   description: string;
-  badgeStyle: string;
 }
 
 const SERVICES: ServiceItem[] = [
   {
-    id: "device-engine",
-    name: "On-Device Defense Engine",
-    status: "NOT_CONNECTED",
-    statusLabel: "Not Connected",
-    description:
-      "Acoustic analysis and call protection operate directly on the host SuSagi Android device.",
-    badgeStyle: "bg-surfaceElevated text-muted border-subtle",
+    id: "phone-connection",
+    name: "Android phone connection",
+    status: "STANDBY",
+    statusLabel: "Standby",
+    description: "Pairs with your phone over a secure local channel to receive call alerts.",
   },
   {
     id: "call-screening",
-    name: "Live Call Screening Relay",
-    status: "NOT_CONNECTED",
-    statusLabel: "Not Connected",
-    description:
-      "Web browsers cannot intercept cellular telephony streams. Telemetry syncs when paired with an Android host.",
-    badgeStyle: "bg-surfaceElevated text-muted border-subtle",
+    name: "Live call screening",
+    status: "PHONE_ONLY",
+    statusLabel: "Runs on phone",
+    description: "Speech analysis and call protection operate directly on your Android phone.",
   },
   {
     id: "activity-sync",
-    name: "Activity Ledger Sync",
+    name: "Activity history sync",
     status: "STANDBY",
-    statusLabel: "Standby",
-    description:
-      "Historical incident telemetry syncs when connected to an authorized host device.",
-    badgeStyle: "bg-surfaceElevated text-secondary border-subtle",
+    statusLabel: "Local companion",
+    description: "Safety audit records and incident summaries saved in companion storage.",
   },
   {
     id: "guardian-network",
-    name: "Guardian Circle Network",
-    status: "NOT_CONNECTED",
-    statusLabel: "Not Connected",
-    description:
-      "Multi-party relay for emergency contact notifications requires a connected guardian service.",
-    badgeStyle: "bg-surfaceElevated text-muted border-subtle",
-  },
-  {
-    id: "verification-service",
-    name: "Identity Verification Service",
-    status: "UNAVAILABLE",
-    statusLabel: "Unavailable",
-    description:
-      "Trusted-person identity verification service is currently unavailable in this companion runtime.",
-    badgeStyle: "bg-surfaceElevated text-muted border-subtle",
+    name: "Guardian Circle",
+    status: "STANDBY",
+    statusLabel: "Ready",
+    description: "Family identity challenge service ready for outgoing verification requests.",
   },
 ];
 
@@ -63,51 +47,36 @@ export const CompanionStatusSection: React.FC = () => {
       <div className="space-y-1">
         <h2
           id="companion-status-heading"
-          className="text-base sm:text-lg font-bold text-primary flex items-center gap-2"
+          className="text-lg font-semibold text-primary"
         >
-          <span>Companion Service Status</span>
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surfaceElevated text-muted border border-subtle">
-            STANDBY RUNTIME
-          </span>
+          Connection status
         </h2>
         <p className="text-xs sm:text-sm text-secondary leading-relaxed">
-          Operational connectivity state between this browser companion and the SuSagi defense ecosystem.
+          Current connection state between this web companion and your Android device.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="rounded-2xl bg-surface border border-subtle divide-y divide-subtle shadow-sm overflow-hidden">
         {SERVICES.map((service) => (
           <div
             key={service.id}
-            className="rounded-xl bg-surface border border-subtle p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
           >
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <div className="text-sm font-semibold text-primary">
                 {service.name}
               </div>
-              <p className="text-xs text-secondary leading-relaxed max-w-xl">
+              <p className="text-xs text-secondary leading-relaxed">
                 {service.description}
               </p>
             </div>
             <div className="shrink-0 self-start sm:self-auto">
-              <span
-                className={`text-xs px-2.5 py-1 rounded-md font-semibold border ${service.badgeStyle}`}
-              >
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-surfaceElevated border border-subtle text-secondary">
                 {service.statusLabel}
               </span>
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Boundary Notice */}
-      <div className="rounded-xl bg-surfaceElevated border border-subtle p-4 space-y-1 text-xs text-secondary leading-relaxed">
-        <div className="font-semibold text-primary">
-          Companion Architecture Boundary
-        </div>
-        <p>
-          The SuSagi Web Companion serves as an auxiliary monitoring and responder interface. Telephony screening, acoustic risk assessment, and protective call termination operate exclusively on the physical Android host.
-        </p>
       </div>
     </section>
   );

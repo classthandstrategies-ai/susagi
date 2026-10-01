@@ -1,52 +1,51 @@
 :root {
-  /* Surfaces */
-  --void: #0B0E14;
-  --base: #111622;
-  --surface: #182030;
-  --surface-elevated: #202B40;
-  --surface-highlight: #26334D;
+  /* Surfaces - Warm off-white / light neutral */
+  --void: #F4F4F2;
+  --base: #FAF9F6;              /* Warm off-white page background */
+  --surface: #FFFFFF;           /* Crisp white primary surface */
+  --surface-elevated: #F5F5F3;   /* Soft warm gray secondary surface */
+  --surface-highlight: #EAEAE6;  /* Subtle hover/active surface */
 
-  /* Borders */
-  --border-subtle: #222C40;
-  --border: #2D3A54;
-  --border-focused: #3B82F6;
+  /* Borders & hairline dividers */
+  --border-subtle: #F0EFEA;
+  --border: #E5E5DF;
+  --border-focused: #0F172A;
 
-  /* Brand */
-  --brand: #3B82F6;
-  --brand-light: #60A5FA;
-  --brand-dark: #2563EB;
-  --brand-soft: rgba(59, 130, 246, 0.12);
+  /* Brand - Restrained deep navy / ink */
+  --brand: #0F172A;
+  --brand-light: #334155;
+  --brand-dark: #020617;
+  --brand-soft: rgba(15, 23, 42, 0.05);
 
-  /* Semantic Risk Tokens */
-  --risk-low: #10B981;
-  --risk-low-soft: rgba(16, 185, 129, 0.12);
-  --risk-low-border: rgba(16, 185, 129, 0.35);
+  /* Semantic Risk Tokens - Calm, consumer */
+  --risk-low: #15803D;          /* Calm green */
+  --risk-low-soft: #F0FDF4;
+  --risk-low-border: #DCFCE7;
 
-  --risk-caution: #F59E0B;
-  --risk-caution-soft: rgba(245, 158, 11, 0.12);
-  --risk-caution-border: rgba(245, 158, 11, 0.35);
+  --risk-caution: #B45309;      /* Amber */
+  --risk-caution-soft: #FFFBEB;
+  --risk-caution-border: #FEF3C7;
 
-  --risk-high: #F97316;
-  --risk-high-soft: rgba(249, 115, 22, 0.12);
-  --risk-high-border: rgba(249, 115, 22, 0.35);
+  --risk-high: #C2410C;         /* Warm orange */
+  --risk-high-soft: #FFF7ED;
+  --risk-high-border: #FFEDD5;
 
-  --risk-critical: #EF4444;
-  --risk-critical-soft: rgba(239, 68, 68, 0.16);
-  --risk-critical-border: rgba(239, 68, 68, 0.45);
+  --risk-critical: #B91C1C;     /* Controlled red */
+  --risk-critical-soft: #FEF2F2;
+  --risk-critical-border: #FEE2E2;
 
-  /* Text & Contrast */
-  --text-primary: #F8FAFC;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-  --text-disabled: #64748B;
+  /* Text & Contrast - High legibility ink */
+  --text-primary: #18181B;      /* Ink / Near-black */
+  --text-secondary: #52525B;    /* Neutral gray */
+  --text-muted: #71717A;        /* Tertiary / captions */
+  --text-disabled: #A1A1AA;
   --text-on-brand: #FFFFFF;
   --text-on-danger: #FFFFFF;
 
   /* Dimensions */
-  --side-nav-width: 260px;
   --top-bar-height: 64px;
   --bottom-nav-height: 64px;
-  --max-content-width: 1280px;
+  --max-content-width: 1040px;
 
   /* Radii */
   --radius-xs: 6px;

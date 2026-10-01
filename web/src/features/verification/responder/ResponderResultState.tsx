@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { ResponderLocalResult } from "./responderTypes";
 
@@ -15,13 +17,13 @@ export const ResponderResultState: React.FC<ResponderResultStateProps> = ({
   return (
     <div
       role="status"
-      className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-4 text-center"
+      className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-4 text-center shadow-sm"
     >
       <div
         className={`w-12 h-12 rounded-2xl mx-auto flex items-center justify-center ${
           isVerified
-            ? "bg-risk-low/15 text-risk-low border border-risk-low/30"
-            : "bg-risk-critical/15 text-risk-critical border border-risk-critical/30"
+            ? "bg-risk-low-soft text-risk-low border border-risk-low"
+            : "bg-risk-critical-soft text-risk-critical border border-risk-critical"
         }`}
       >
         {isVerified ? (
@@ -36,27 +38,23 @@ export const ResponderResultState: React.FC<ResponderResultStateProps> = ({
       </div>
 
       <div className="space-y-1.5">
-        <h3 className="text-xl font-bold text-primary">
-          {isVerified ? "Response Recorded: Authorized" : "Response Recorded: Declined"}
+        <h3 className="text-xl font-semibold text-primary">
+          {isVerified ? "Response recorded: Confirmed" : "Response recorded: Declined"}
         </h3>
         <p className="text-sm text-secondary leading-relaxed">
           {isVerified
-            ? "You confirmed locally that this request is from you."
-            : "You indicated locally that this request did not come from you."}
+            ? "You confirmed that this request is really from you."
+            : "You indicated that this request is not from you. A warning has been recorded."}
         </p>
-      </div>
-
-      <div className="rounded-xl bg-surfaceElevated p-3 border border-subtle text-xs text-muted font-mono max-w-md mx-auto">
-        Notice: Fixture response recorded locally for UI preview. No network response was transmitted to a remote backend.
       </div>
 
       <div className="pt-2">
         <button
           type="button"
           onClick={onReset}
-          className="min-h-[48px] px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
+          className="min-h-[44px] px-4 py-2 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-xs font-medium text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
         >
-          Reset Decision Preview
+          Reset preview
         </button>
       </div>
     </div>

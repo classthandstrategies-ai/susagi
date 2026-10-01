@@ -72,7 +72,7 @@ export const ActivityPageClient: React.FC<ActivityPageClientProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-3xl mx-auto">
       {/* Activity Header */}
       <ActivityHeader
         isFixtureMode={isFixtureMode}
@@ -92,14 +92,14 @@ export const ActivityPageClient: React.FC<ActivityPageClientProps> = ({
         <ActivityEmptyState type="DISCONNECTED" />
       )}
 
-      {/* Connected Empty State (Dev fixture ?fixture=empty) */}
+      {/* Connected Empty State */}
       {status === "EMPTY" && isFixtureMode && (
         <ActivityEmptyState type="EMPTY_CONNECTED" />
       )}
 
       {/* Loaded Incidents View */}
       {status === "LOADED" && (
-        <div className="space-y-5">
+        <div className="space-y-6">
           <ActivityFilters
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -113,10 +113,18 @@ export const ActivityPageClient: React.FC<ActivityPageClientProps> = ({
           />
 
           {filteredIncidents.length === 0 ? (
-            <ActivityEmptyState
-              type="NO_SEARCH_RESULTS"
-              onResetFilters={resetFilters}
-            />
+            <div className="rounded-2xl bg-surface border border-subtle p-8 text-center space-y-3 shadow-sm">
+              <p className="text-sm text-secondary">
+                No activity records matched your filter criteria.
+              </p>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-xs font-semibold text-brand hover:text-brandLight transition-colors cursor-pointer"
+              >
+                Reset filters
+              </button>
+            </div>
           ) : (
             <ActivityList
               incidents={filteredIncidents}

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { IncidentTimelineItem, TimelineEventType } from "@/types/activity";
 import { RiskBadge } from "@/components/risk/RiskBadge";
@@ -51,20 +53,17 @@ const getEventIcon = (type?: TimelineEventType) => {
 
 export const IncidentTimeline: React.FC<IncidentTimelineProps> = ({
   timeline,
-  isFixtureMode,
+  isFixtureMode = false,
 }) => {
   return (
     <section
       aria-labelledby="timeline-heading"
-      className="rounded-2xl bg-surface border border-subtle p-6 space-y-4"
+      className="rounded-2xl bg-surface border border-subtle p-6 space-y-4 shadow-sm"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 id="timeline-heading" className="text-base font-semibold text-primary">
-          Incident Progression Timeline
+        <h2 id="timeline-heading" className="text-xs font-medium text-secondary">
+          Progression timeline
         </h2>
-        <span className="text-[11px] font-mono text-muted">
-          Chronological Event Sequence
-        </span>
       </div>
 
       <div className="pt-2">
@@ -101,11 +100,6 @@ export const IncidentTimeline: React.FC<IncidentTimelineProps> = ({
                     <h3 className="text-sm font-semibold text-primary">
                       {item.title}
                     </h3>
-                    {item.eventType && (
-                      <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-surfaceHighlight text-muted uppercase">
-                        {item.eventType}
-                      </span>
-                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <RiskBadge level={item.riskLevel} size="sm" />
@@ -125,7 +119,7 @@ export const IncidentTimeline: React.FC<IncidentTimelineProps> = ({
 
       {isFixtureMode && (
         <p className="text-[11px] text-muted leading-relaxed pt-2 border-t border-subtle">
-          * Note: Multi-channel sequence (SMS, Voice, Link, Verification) is simulated fixture demonstration data. Normal production companion describes activity records without implying cross-channel correlation.
+          * Simulated timeline progression for development preview.
         </p>
       )}
     </section>

@@ -1,7 +1,9 @@
+"use client";
+
 import React from "react";
 import { RiskAssessment } from "@/types/risk";
 import { RiskBadge } from "@/components/risk/RiskBadge";
-import { getRiskColorClass, formatProtectiveAction, cn } from "@/lib/utils";
+import { getRiskColorClass, cn } from "@/lib/utils";
 
 interface LiveRiskHeroProps {
   assessment: RiskAssessment;
@@ -12,8 +14,6 @@ export const LiveRiskHero: React.FC<LiveRiskHeroProps> = ({ assessment }) => {
     riskLevel,
     headline,
     explanation,
-    recommendedAction,
-    actionRationale,
     claimedIdentity,
   } = assessment;
 
@@ -23,12 +23,12 @@ export const LiveRiskHero: React.FC<LiveRiskHeroProps> = ({ assessment }) => {
     <section
       aria-labelledby="live-hero-headline"
       className={cn(
-        "rounded-2xl border p-5 sm:p-7 transition-colors",
+        "rounded-2xl border p-6 sm:p-7 transition-colors shadow-sm",
         colors.bgSoft,
         colors.border
       )}
     >
-      {/* Top Meta Bar: Risk Badge, Claimed Identity, Timestamp */}
+      {/* 1. RISK STATE & IDENTITY */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-2.5">
           <RiskBadge level={riskLevel} size="lg" />
@@ -45,11 +45,11 @@ export const LiveRiskHero: React.FC<LiveRiskHeroProps> = ({ assessment }) => {
         </span>
       </div>
 
-      {/* 1. WHAT IS HAPPENING (Headline) */}
-      <div className="space-y-1 mb-4">
+      {/* 2. HUMAN SENTENCE (Headline) */}
+      <div className="space-y-1.5 mb-4">
         <h2
           id="live-hero-headline"
-          className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary tracking-tight"
+          className="text-xl sm:text-2xl font-semibold text-primary tracking-tight"
         >
           {headline}
         </h2>
@@ -60,36 +60,16 @@ export const LiveRiskHero: React.FC<LiveRiskHeroProps> = ({ assessment }) => {
         )}
       </div>
 
-      {/* 2. WHY IT IS RISKY (Explanation) */}
-      <div className="rounded-xl bg-surface border border-subtle p-4 sm:p-5 mb-5">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-1">
-          Why It Matters / Risk Context
-        </div>
+      {/* 3. SHORT EXPLANATION (Why it's risky) */}
+      <div className="rounded-xl bg-surface border border-subtle p-4 sm:p-5">
         <p className="text-sm sm:text-base text-secondary leading-relaxed">
           {explanation}
         </p>
         {assessment.hindiExplanation && (
-          <p className="text-xs text-muted mt-1.5 italic">
+          <p className="text-xs text-muted mt-2 italic">
             {assessment.hindiExplanation}
           </p>
         )}
-      </div>
-
-      {/* 3. WHAT THE USER SHOULD DO NEXT (Recommended Action Directive) */}
-      <div className="rounded-xl bg-surfaceElevated border border-default p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="space-y-0.5">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-            Primary Recommended Directive
-          </div>
-          <div className="text-base sm:text-lg font-bold text-primary">
-            {formatProtectiveAction(recommendedAction)}
-          </div>
-          {actionRationale && (
-            <p className="text-xs text-secondary leading-relaxed">
-              {actionRationale}
-            </p>
-          )}
-        </div>
       </div>
     </section>
   );

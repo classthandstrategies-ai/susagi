@@ -23,25 +23,23 @@ export const IncidentDetailPageClient: React.FC<IncidentDetailPageClientProps> =
 }) => {
   const backHref = fixtureKey ? `/activity?fixture=${fixtureKey}` : "/activity";
 
-  // When incident is unavailable (normal production runtime or nonexistent fixture ID)
+  // When incident is unavailable
   if (!incident) {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto my-6">
+      <div className="space-y-6 max-w-xl mx-auto my-6">
         <Link
           href={backHref}
-          className="min-h-[48px] inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brandLight transition-colors"
+          className="min-h-[44px] inline-flex items-center gap-1.5 text-xs font-medium text-secondary hover:text-primary transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span>Back to Activity</span>
+          <span aria-hidden="true">‹</span>
+          <span>Back to activity</span>
         </Link>
 
         <section
           aria-labelledby="unavailable-heading"
-          className="rounded-2xl bg-surface border border-subtle p-8 text-center space-y-4"
+          className="rounded-2xl bg-surface border border-subtle p-8 text-center space-y-4 shadow-sm"
         >
-          <div className="w-12 h-12 rounded-2xl bg-surfaceElevated border border-subtle mx-auto flex items-center justify-center text-muted">
+          <div className="w-12 h-12 rounded-2xl bg-surfaceElevated border border-subtle mx-auto flex items-center justify-center text-secondary">
             <svg
               className="w-6 h-6"
               fill="none"
@@ -59,23 +57,23 @@ export const IncidentDetailPageClient: React.FC<IncidentDetailPageClientProps> =
           </div>
 
           <div className="space-y-1.5">
-            <h1 id="unavailable-heading" className="text-xl font-bold text-primary">
+            <h1 id="unavailable-heading" className="text-xl font-semibold text-primary">
               Incident unavailable
             </h1>
             <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
-              This incident is not available from the connected activity service.
+              This incident could not be found or is not available from the connected activity service.
             </p>
             <p className="text-xs font-mono text-muted">
-              Reference ID: {incidentId}
+              Reference: {incidentId}
             </p>
           </div>
 
           <div className="pt-2">
             <Link
               href={backHref}
-              className="min-h-[48px] inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight"
+              className="min-h-[44px] inline-flex items-center justify-center px-4 py-2 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-xs font-medium text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight"
             >
-              Back to Activity
+              Back to activity
             </Link>
           </div>
         </section>
@@ -83,46 +81,65 @@ export const IncidentDetailPageClient: React.FC<IncidentDetailPageClientProps> =
     );
   }
 
-  // Loaded Incident View
+  // Loaded Incident View following Story Order:
+  // 1. Incident title + Risk pill + Date/time (IncidentSummary)
+  // 2. What happened (IncidentSummary)
+  // 3. What SuSagi noticed (IncidentEvidence)
+  // 4. Evidence captured (IncidentEvidence)
+  // 5. Progression timeline (IncidentTimeline)
+  // 6. What to do next (IncidentActions)
+  // 7. Secondary technical details tucked quietly at the bottom
   return (
-    <div className="space-y-6 max-w-[1440px] mx-auto">
+    <div className="space-y-8 max-w-3xl mx-auto">
       {/* Top Navigation & Fixture Badge */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={backHref}
-          className="min-h-[48px] inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brandLight transition-colors"
+          className="min-h-[44px] inline-flex items-center gap-1.5 text-xs font-medium text-secondary hover:text-primary transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span>Back to Activity</span>
+          <span aria-hidden="true">‹</span>
+          <span>Back to activity</span>
         </Link>
 
         {isFixtureMode && (
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brandSoft text-brand border border-brand/40 uppercase">
-            DEVELOPMENT FIXTURE — NOT RUNTIME ACTIVITY
+          <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-surfaceElevated text-muted border border-subtle">
+            Fixture preview
           </span>
         )}
       </div>
 
-      {/* Main Responsive Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (7 cols): Summary, Progression Timeline, Evidence */}
-        <div className="lg:col-span-7 space-y-6">
-          <IncidentSummary incident={incident} />
+      {/* Story Order Content Flow */}
+      <div className="space-y-6">
+        {/* 1 & 2: Incident Title, Risk, Date/Time & What Happened Narrative */}
+        <IncidentSummary incident={incident} />
+
+        {/* 3 & 4: What SuSagi Noticed & Excerpts Captured */}
+        <IncidentEvidence
+          signals={incident.signals}
+          evidence={incident.evidence}
+        />
+
+        {/* Progression Timeline (if multi-step) */}
+        {incident.timeline && incident.timeline.length > 0 && (
           <IncidentTimeline
             timeline={incident.timeline}
             isFixtureMode={isFixtureMode}
           />
-          <IncidentEvidence
-            signals={incident.signals}
-            evidence={incident.evidence}
-          />
-        </div>
+        )}
 
-        {/* Right Column (5 cols): Recommended Follow-Up & Supported Actions */}
-        <div className="lg:col-span-5 space-y-6">
-          <IncidentActions incident={incident} />
+        {/* 5: What to do next */}
+        <IncidentActions incident={incident} />
+
+        {/* 6: Secondary Technical Details (tucked quietly at bottom) */}
+        <div className="rounded-2xl bg-surface border border-subtle p-4 text-xs text-muted space-y-1 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span>Reference ID: <strong className="font-mono text-secondary">{incident.id}</strong></span>
+            <span>Channel: <strong className="text-secondary">{incident.channel || "TELEPHONY"}</strong></span>
+            <span>Source: <strong className="font-mono text-secondary">{incident.source}</strong></span>
+          </div>
+          <p className="text-[11px] text-muted pt-1">
+            Recorded by SuSagi on Android device. Stored locally for your protection audit.
+          </p>
         </div>
       </div>
     </div>

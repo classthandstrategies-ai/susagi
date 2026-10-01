@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import { SideNavigation } from "./SideNavigation";
 import { TopBar } from "./TopBar";
 import { MobileNavigation } from "./MobileNavigation";
 import { DevFixtureBar } from "../dev/DevFixtureBar";
@@ -10,7 +9,7 @@ interface AppShellProps {
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-base text-primary flex flex-col md:flex-row antialiased">
+    <div className="min-h-screen bg-base text-primary flex flex-col antialiased">
       {/* Accessible skip link */}
       <a
         href="#main-content"
@@ -19,21 +18,17 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         Skip to main content
       </a>
 
-      {/* Desktop / Tablet Left Sidebar Navigation */}
-      <SideNavigation />
+      {/* Desktop / Mobile Top Navigation */}
+      <TopBar />
 
-      {/* Main Content Column */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 md:pb-8">
-        <TopBar />
-
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 focus:outline-none"
-        >
-          {children}
-        </main>
-      </div>
+      {/* Main Content Column — Calm reading width */}
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 pb-24 md:pb-12 focus:outline-none"
+      >
+        {children}
+      </main>
 
       {/* Mobile Bottom Navigation */}
       <MobileNavigation />

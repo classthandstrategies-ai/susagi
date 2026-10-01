@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { ScamSignal } from "@/types/risk";
 import { SignalCard } from "@/components/cards/SignalCard";
@@ -11,21 +13,16 @@ export const LiveSignalsPanel: React.FC<LiveSignalsPanelProps> = ({
 }) => {
   return (
     <section aria-labelledby="signals-panel-heading" className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3
-          id="signals-panel-heading"
-          className="text-xs font-semibold uppercase tracking-wider text-muted"
-        >
-          Why SuSagi Is Concerned ({signals.length})
-        </h3>
-        <span className="text-[11px] font-mono text-muted">
-          Semantic Linguistic Patterns
-        </span>
-      </div>
+      <h3
+        id="signals-panel-heading"
+        className="text-xs font-medium text-secondary"
+      >
+        What SuSagi noticed ({signals.length})
+      </h3>
 
       {signals.length === 0 ? (
-        <div className="rounded-xl bg-surface border border-subtle p-6 text-center text-sm text-secondary">
-          No suspicious signals found in the current assessment.
+        <div className="rounded-2xl bg-surface border border-subtle p-6 text-center text-sm text-secondary shadow-sm">
+          No suspicious signals detected during this call.
         </div>
       ) : (
         <div className="space-y-3">

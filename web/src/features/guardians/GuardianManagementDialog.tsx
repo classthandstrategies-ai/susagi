@@ -44,11 +44,11 @@ const GuardianFormContent: React.FC<GuardianFormContentProps> = ({
     }
 
     if (!phone.trim()) {
-      setError("Please provide a phone number or contact identifier.");
+      setError("Please provide a phone number.");
       return;
     }
 
-    // Normal production runtime check (Step 6)
+    // Normal production runtime check
     if (!isFixtureMode) {
       setRuntimeBlockedNotice(
         "Guardian service is not connected. This contact cannot be saved yet."
@@ -74,31 +74,31 @@ const GuardianFormContent: React.FC<GuardianFormContentProps> = ({
       {runtimeBlockedNotice && (
         <div
           role="alert"
-          className="rounded-xl bg-risk-caution/10 border border-risk-caution/30 p-3.5 text-xs text-risk-caution leading-relaxed space-y-1"
+          className="rounded-xl bg-risk-caution-soft border border-risk-caution/30 p-3.5 text-xs text-risk-caution leading-relaxed space-y-1"
         >
-          <div className="font-semibold">Service Not Connected</div>
+          <div className="font-semibold">Service not connected</div>
           <div>{runtimeBlockedNotice}</div>
         </div>
       )}
 
       {isFixtureMode && (
-        <div className="rounded-xl bg-brandSoft border border-brand/30 p-3 text-xs text-brand leading-relaxed font-mono">
-          Development fixture mode: Changes update in-memory preview only.
+        <div className="rounded-xl bg-surfaceElevated border border-subtle p-3 text-xs text-secondary leading-relaxed">
+          Fixture preview: Changes update in-memory only.
         </div>
       )}
 
       {error && (
         <div
           role="alert"
-          className="text-xs text-risk-critical font-medium bg-risk-critical/10 p-2.5 rounded-lg border border-risk-critical/20"
+          className="text-xs text-risk-critical font-medium bg-risk-critical-soft p-2.5 rounded-lg border border-risk-critical/20"
         >
           {error}
         </div>
       )}
 
       <div className="space-y-1.5">
-        <label htmlFor="guardian-name" className="text-xs font-semibold uppercase tracking-wider text-muted">
-          Full Name *
+        <label htmlFor="guardian-name" className="text-xs font-medium text-secondary">
+          Full name *
         </label>
         <input
           id="guardian-name"
@@ -110,12 +110,12 @@ const GuardianFormContent: React.FC<GuardianFormContentProps> = ({
           }}
           placeholder="e.g. Aarav Sharma"
           required
-          className="w-full min-h-[48px] px-3.5 rounded-xl bg-surfaceElevated border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary placeholder:text-muted transition-colors"
+          className="w-full min-h-[44px] px-3.5 rounded-xl bg-surfaceElevated border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary placeholder:text-muted transition-colors"
         />
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="guardian-relationship" className="text-xs font-semibold uppercase tracking-wider text-muted">
+        <label htmlFor="guardian-relationship" className="text-xs font-medium text-secondary">
           Relationship
         </label>
         <input
@@ -123,14 +123,14 @@ const GuardianFormContent: React.FC<GuardianFormContentProps> = ({
           type="text"
           value={relationship}
           onChange={(e) => setRelationship(e.target.value)}
-          placeholder="e.g. Sister, Son, Trusted Neighbor"
-          className="w-full min-h-[48px] px-3.5 rounded-xl bg-surfaceElevated border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary placeholder:text-muted transition-colors"
+          placeholder="e.g. Sister, Son, Dad"
+          className="w-full min-h-[44px] px-3.5 rounded-xl bg-surfaceElevated border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary placeholder:text-muted transition-colors"
         />
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="guardian-phone" className="text-xs font-semibold uppercase tracking-wider text-muted">
-          Phone / Contact Identifier *
+        <label htmlFor="guardian-phone" className="text-xs font-medium text-secondary">
+          Phone number *
         </label>
         <input
           id="guardian-phone"
@@ -142,21 +142,21 @@ const GuardianFormContent: React.FC<GuardianFormContentProps> = ({
           }}
           placeholder="+91 9XXXX XXXXX"
           required
-          className="w-full min-h-[48px] px-3.5 rounded-xl bg-surfaceElevated border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary font-mono placeholder:text-muted transition-colors"
+          className="w-full min-h-[44px] px-3.5 rounded-xl bg-surfaceElevated border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary font-mono placeholder:text-muted transition-colors"
         />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         <button
           type="submit"
-          className="flex-1 min-h-[48px] px-5 py-3 rounded-xl bg-brand hover:bg-brandLight text-white font-semibold text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
+          className="flex-1 min-h-[44px] px-5 py-2.5 rounded-xl bg-brand hover:bg-brandLight text-white font-medium text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
         >
-          {isEdit ? "Update Contact" : "Save Contact"}
+          {isEdit ? "Update contact" : "Save contact"}
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-secondary hover:text-primary font-semibold text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
+          className="flex-1 min-h-[44px] px-5 py-2.5 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-secondary hover:text-primary font-medium text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
         >
           Cancel
         </button>
@@ -175,7 +175,7 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
 }) => {
   if (mode === "NONE") return null;
 
-  // REMOVE CONFIRMATION MODAL (Step 8)
+  // REMOVE CONFIRMATION MODAL
   if (mode === "REMOVE" && selectedGuardian) {
     const handleConfirmDelete = () => {
       if (isFixtureMode && onDeleteFixtureGuardian) {
@@ -185,30 +185,24 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
     };
 
     return (
-      <Modal isOpen={true} onClose={onClose} title="Remove Trusted Person?">
+      <Modal isOpen={true} onClose={onClose} title="Remove trusted person?">
         <div className="space-y-4">
           <p className="text-sm text-secondary leading-relaxed">
             Are you sure you want to remove <strong>{selectedGuardian.name}</strong> from your trusted circle?
           </p>
 
-          <div className="rounded-xl bg-surfaceElevated p-3.5 border border-subtle text-xs text-muted font-mono">
-            {isFixtureMode
-              ? "Notice: This only changes the development fixture in local memory."
-              : "Guardian service is not connected."}
-          </div>
-
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="button"
               onClick={handleConfirmDelete}
-              className="flex-1 min-h-[48px] px-5 py-3 rounded-xl bg-risk-critical hover:bg-red-700 text-white font-semibold text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
+              className="flex-1 min-h-[44px] px-5 py-2.5 rounded-xl bg-risk-critical hover:bg-red-700 text-white font-medium text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
             >
-              Confirm Removal
+              Confirm removal
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-primary font-semibold text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
+              className="flex-1 min-h-[44px] px-5 py-2.5 rounded-xl bg-surface hover:bg-surfaceElevated border border-subtle text-secondary hover:text-primary font-medium text-xs transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
             >
               Cancel
             </button>
@@ -218,10 +212,10 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
     );
   }
 
-  // EDUCATION MODAL (Step 4)
+  // EDUCATION MODAL
   if (mode === "EDUCATION") {
     return (
-      <Modal isOpen={true} onClose={onClose} title="How Guardian Circle Works">
+      <Modal isOpen={true} onClose={onClose} title="How Guardian Circle works">
         <div className="space-y-4">
           <p className="text-sm text-secondary leading-relaxed">
             When something feels unusual, SuSagi can help you ask a trusted person to confirm a sensitive request through a connected verification service.
@@ -229,7 +223,7 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
 
           <div className="space-y-3">
             <div className="rounded-xl bg-surfaceElevated p-3.5 border border-subtle space-y-1">
-              <h4 className="text-xs font-semibold text-primary">1. Trusted Person Confirmation</h4>
+              <h4 className="text-xs font-semibold text-primary">1. Trusted person confirmation</h4>
               <p className="text-xs text-secondary leading-relaxed">
                 If an incoming caller pressures you for credentials or emergency money, you can challenge their claim by asking a trusted contact to verify it.
               </p>
@@ -243,9 +237,9 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
             </div>
 
             <div className="rounded-xl bg-surfaceElevated p-3.5 border border-subtle space-y-1">
-              <h4 className="text-xs font-semibold text-primary">3. Complete Audit History</h4>
+              <h4 className="text-xs font-semibold text-primary">3. Complete audit history</h4>
               <p className="text-xs text-secondary leading-relaxed">
-                All verification requests and responses are securely recorded in your Activity ledger for future reference.
+                All verification requests and responses are recorded in your Activity history for reference.
               </p>
             </div>
           </div>
@@ -254,9 +248,9 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
             <button
               type="button"
               onClick={onClose}
-              className="w-full min-h-[48px] px-5 py-3 rounded-xl bg-brand text-white font-semibold text-xs hover:bg-brandLight transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
+              className="w-full min-h-[44px] px-5 py-2.5 rounded-xl bg-brand text-white font-medium text-xs hover:bg-brandLight transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
             >
-              Got It
+              Got it
             </button>
           </div>
         </div>
@@ -264,7 +258,7 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
     );
   }
 
-  const title = mode === "EDIT" ? "Edit Trusted Person" : "Add Trusted Person";
+  const title = mode === "EDIT" ? "Edit trusted person" : "Add trusted person";
 
   return (
     <Modal isOpen={true} onClose={onClose} title={title}>

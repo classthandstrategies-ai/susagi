@@ -3,11 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { HomeViewState } from "./homeTypes";
-import { HomeOverview } from "./HomeOverview";
-import { QuickActions } from "./QuickActions";
-import { ProtectionOverview } from "./ProtectionOverview";
-import { RecentActivityPreview } from "./RecentActivityPreview";
-import { GuardianCirclePreview } from "./GuardianCirclePreview";
+import { RiskBadge } from "@/components/risk/RiskBadge";
 import { LinkCheckDialog } from "@/features/protect/LinkCheckDialog";
 
 interface HomePageClientProps {
@@ -18,124 +14,235 @@ export const HomePageClient: React.FC<HomePageClientProps> = ({
   initialState,
 }) => {
   const [isLinkCheckOpen, setIsLinkCheckOpen] = useState(false);
-  const { overview, capabilities, recentIncidents, guardians, isFixtureMode } =
-    initialState;
+  const [linkInput, setLinkInput] = useState("");
+  const { overview, recentIncidents, guardians, isFixtureMode } = initialState;
+
+  const handleLinkSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLinkCheckOpen(true);
+  };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Top Welcome / Orientation */}
-      <header className="space-y-1">
+    <div className="space-y-10 max-w-3xl mx-auto">
+      {/* 1. Greeting / Simple Opening */}
+      <header className="space-y-1.5 pt-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-            SuSagi Companion
+            Safety Companion
           </span>
           {isFixtureMode && (
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brandSoft text-brand border border-brand/30 uppercase">
-              DEVELOPMENT FIXTURE MODE
+            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-brandSoft text-brand border border-brand/20 uppercase">
+              Development fixture
             </span>
           )}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">
-          Security & Call Defense
+          Your protection
         </h1>
-        <p className="text-sm text-secondary max-w-2xl leading-relaxed">
-          Autonomous protection companion coordinating live call defense, identity checks, and fraud prevention.
+        <p className="text-sm text-secondary leading-relaxed">
+          SuSagi monitors suspicious calls, helps verify human identities, and checks unsafe links.
         </p>
       </header>
 
-      {/* Balanced 2-Column Responsive Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Main Column (8 cols on lg) */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* 1. Protection Overview */}
-          <HomeOverview overview={overview} isFixtureMode={isFixtureMode} />
-
-          {/* 2. Quick Actions */}
-          <QuickActions onOpenLinkCheck={() => setIsLinkCheckOpen(true)} />
-
-          {/* 3. Protection Capabilities Summary */}
-          <ProtectionOverview
-            capabilities={capabilities}
-            onOpenLinkCheck={() => setIsLinkCheckOpen(true)}
-          />
-
-          {/* 4. Recent Activity Preview */}
-          <RecentActivityPreview
-            incidents={recentIncidents}
-            isFixtureMode={isFixtureMode}
-          />
-        </div>
-
-        {/* Secondary Column (4 cols on lg) */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Protection Readiness & Setup Guide */}
-          <section aria-labelledby="readiness-title" className="rounded-2xl bg-surface border border-subtle p-5 space-y-3">
-            <h2 id="readiness-title" className="text-xs font-semibold uppercase tracking-wider text-muted">
-              Companion Readiness
-            </h2>
-
-            <div className="space-y-2.5 text-xs text-secondary leading-relaxed">
-              <div className="flex items-start gap-2">
-                <span className="w-4 h-4 rounded-full bg-brandSoft text-brand flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                  1
-                </span>
-                <p>
-                  <strong className="text-primary">Standalone Web Companion:</strong> Inspect suspicious links, coordinate guardians, and review activity audits independently.
-                </p>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <span className="w-4 h-4 rounded-full bg-surfaceElevated text-muted flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                  2
-                </span>
-                <p>
-                  <strong className="text-primary">Device Integration:</strong> Pair with the SuSagi Android app to enable autonomous call interception and on-device acoustic analysis.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-subtle">
-              <Link
-                href="/settings"
-                className="text-xs font-semibold text-brand hover:text-brandLight transition-colors"
+      {/* 2. DOMINANT STATE: Your Protection Card */}
+      <section
+        aria-labelledby="protection-dominant-title"
+        className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-5 shadow-sm"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${
+                  overview.isDeviceConnected
+                    ? "bg-risk-low"
+                    : "bg-risk-caution"
+                }`}
+                aria-hidden="true"
+              />
+              <h2
+                id="protection-dominant-title"
+                className="text-lg sm:text-xl font-bold text-primary tracking-tight"
               >
-                Configure Pairing & Settings →
-              </Link>
+                {overview.isDeviceConnected
+                  ? overview.headline
+                  : "Device protection isn't connected"}
+              </h2>
             </div>
-          </section>
-
-          {/* Guardian Circle Preview */}
-          <GuardianCirclePreview
-            guardians={guardians}
-            isFixtureMode={isFixtureMode}
-          />
-
-          {/* Interactive Link Check Quick Card */}
-          <section aria-labelledby="link-card-title" className="rounded-2xl bg-surface border border-subtle p-5 space-y-3">
-            <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-              <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-              <h2 id="link-card-title">Received a strange link?</h2>
-            </div>
-            <p className="text-xs text-secondary leading-relaxed">
-              Before opening SMS or WhatsApp links from unknown senders, verify domain structure in the companion link inspector.
+            <p className="text-sm text-secondary leading-relaxed max-w-xl">
+              {overview.isDeviceConnected
+                ? overview.statusDescription
+                : "Connect SuSagi on your phone to see live protection status here."}
             </p>
-            <button
-              type="button"
-              onClick={() => setIsLinkCheckOpen(true)}
-              className="w-full py-2.5 px-4 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
-            >
-              Inspect Link Now
-            </button>
-          </section>
+          </div>
         </div>
-      </div>
+
+        <div className="pt-2">
+          <Link
+            href="/protect"
+            className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-xl bg-brand text-white font-medium text-sm hover:bg-brandLight transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer shadow-sm"
+          >
+            Review protection
+          </Link>
+        </div>
+      </section>
+
+      {/* 3. Recent Safety Activity */}
+      <section aria-labelledby="activity-section-title" className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <h2
+            id="activity-section-title"
+            className="text-base font-semibold text-primary"
+          >
+            Recent safety activity
+          </h2>
+          <Link
+            href="/activity"
+            className="text-xs font-medium text-secondary hover:text-primary transition-colors"
+          >
+            View all activity →
+          </Link>
+        </div>
+
+        {recentIncidents.length === 0 ? (
+          <div className="rounded-2xl bg-surface border border-subtle p-6 text-center space-y-3">
+            <p className="text-sm text-secondary">
+              No recent activity connected yet.
+            </p>
+            <Link
+              href="/activity"
+              className="inline-flex items-center justify-center min-h-[40px] px-4 py-2 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors"
+            >
+              View activity
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {recentIncidents.slice(0, 3).map((incident) => (
+              <Link
+                key={incident.id}
+                href={`/activity/${incident.id}`}
+                className="block rounded-xl bg-surface border border-subtle hover:border-default p-4 sm:p-4.5 transition-colors group focus-visible:ring-2 focus-visible:ring-brandLight"
+              >
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <div className="flex items-center gap-2">
+                    <RiskBadge level={incident.riskLevel} size="sm" />
+                    <span className="text-xs text-muted font-medium">
+                      {incident.timestamp}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted group-hover:text-primary transition-colors">
+                    ›
+                  </span>
+                </div>
+                <h3 className="text-sm font-semibold text-primary group-hover:text-brand transition-colors">
+                  {incident.title}
+                </h3>
+                <p className="text-xs text-secondary mt-0.5 line-clamp-1">
+                  {incident.summary}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 4. Guardian Circle */}
+      <section aria-labelledby="guardians-section-title" className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <h2
+            id="guardians-section-title"
+            className="text-base font-semibold text-primary"
+          >
+            Guardian Circle
+          </h2>
+          <Link
+            href="/guardians"
+            className="text-xs font-medium text-secondary hover:text-primary transition-colors"
+          >
+            Open Guardian Circle →
+          </Link>
+        </div>
+
+        {guardians.length === 0 ? (
+          <div className="rounded-2xl bg-surface border border-subtle p-6 text-center space-y-3">
+            <p className="text-sm text-secondary">
+              Trusted people will appear here when Guardian Circle is connected.
+            </p>
+            <Link
+              href="/guardians"
+              className="inline-flex items-center justify-center min-h-[40px] px-4 py-2 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors"
+            >
+              Add trusted person
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {guardians.slice(0, 4).map((guardian) => (
+              <div
+                key={guardian.id}
+                className="rounded-xl bg-surface border border-subtle p-4 flex items-center gap-3.5"
+              >
+                <div
+                  className="w-10 h-10 rounded-full bg-surfaceElevated text-primary font-semibold text-sm flex items-center justify-center shrink-0 border border-subtle"
+                  aria-hidden="true"
+                >
+                  {guardian.avatarInitials}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-primary truncate">
+                    {guardian.name}
+                  </div>
+                  <div className="text-xs text-muted truncate">
+                    {guardian.relationship}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 5. Check a Suspicious Link */}
+      <section
+        aria-labelledby="link-check-section-title"
+        className="rounded-2xl bg-surface border border-subtle p-6 sm:p-7 space-y-3 shadow-sm"
+      >
+        <div className="space-y-1">
+          <h2
+            id="link-check-section-title"
+            className="text-base font-semibold text-primary"
+          >
+            Check a suspicious link
+          </h2>
+          <p className="text-xs sm:text-sm text-secondary">
+            Paste a link before you open it to inspect domain safety.
+          </p>
+        </div>
+
+        <form onSubmit={handleLinkSubmit} className="flex flex-col sm:flex-row gap-2.5 pt-1">
+          <input
+            type="text"
+            value={linkInput}
+            onChange={(e) => setLinkInput(e.target.value)}
+            placeholder="https://example.com/verify..."
+            className="flex-1 min-h-[44px] px-4 py-2 rounded-xl bg-surfaceElevated border border-default text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-brand"
+            aria-label="Paste suspicious link here"
+          />
+          <button
+            type="submit"
+            className="min-h-[44px] px-5 py-2 rounded-xl bg-brand text-white font-medium text-sm hover:bg-brandLight transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer shrink-0"
+          >
+            Check link
+          </button>
+        </form>
+      </section>
 
       {/* Accessible Interactive Link Check Dialog */}
       <LinkCheckDialog
         isOpen={isLinkCheckOpen}
         onClose={() => setIsLinkCheckOpen(false)}
+        initialUrl={linkInput}
         isFixtureMode={isFixtureMode}
       />
     </div>

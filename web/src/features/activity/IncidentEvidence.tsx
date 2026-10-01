@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { ScamSignal, ScamEvidence } from "@/types/risk";
 import { SignalCard } from "@/components/cards/SignalCard";
@@ -14,20 +16,15 @@ export const IncidentEvidence: React.FC<IncidentEvidenceProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* Linguistic Signals */}
+      {/* 3. What SuSagi Noticed (Signals & Flags) */}
       {signals && signals.length > 0 && (
         <section aria-labelledby="signals-heading" className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2
-              id="signals-heading"
-              className="text-xs font-semibold uppercase tracking-wider text-muted"
-            >
-              Detected Linguistic Scam Patterns ({signals.length})
-            </h2>
-            <span className="text-[11px] font-mono text-muted">
-              Semantic Markers
-            </span>
-          </div>
+          <h2
+            id="signals-heading"
+            className="text-xs font-medium text-secondary"
+          >
+            What SuSagi noticed ({signals.length})
+          </h2>
 
           <div className="space-y-3">
             {signals.map((sig) => (
@@ -37,20 +34,15 @@ export const IncidentEvidence: React.FC<IncidentEvidenceProps> = ({
         </section>
       )}
 
-      {/* Intercepted Communication Evidence */}
+      {/* 4. Evidence Captured (What was said / excerpts) */}
       {evidence && evidence.length > 0 && (
         <section aria-labelledby="evidence-heading" className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2
-              id="evidence-heading"
-              className="text-xs font-semibold uppercase tracking-wider text-muted"
-            >
-              Captured Context & Excerpts ({evidence.length})
-            </h2>
-            <span className="text-[11px] font-mono text-muted">
-              Evidence Log
-            </span>
-          </div>
+          <h2
+            id="evidence-heading"
+            className="text-xs font-medium text-secondary"
+          >
+            What was said during the interaction ({evidence.length})
+          </h2>
 
           <div className="space-y-3">
             {evidence.map((evi) => (

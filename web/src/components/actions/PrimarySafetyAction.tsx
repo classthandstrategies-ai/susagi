@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -25,15 +27,15 @@ export const PrimarySafetyAction: React.FC<PrimarySafetyActionProps> = ({
 }) => {
   const variantStyles = {
     brand:
-      "bg-brand text-white hover:bg-blue-600 active:bg-blue-700 shadow-sm focus-visible:ring-2 focus-visible:ring-brandLight focus-visible:ring-offset-2 focus-visible:ring-offset-void",
+      "bg-brand text-white hover:bg-brandLight active:bg-blue-700 shadow-sm focus-visible:ring-2 focus-visible:ring-brandLight focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
     danger:
-      "bg-risk-critical text-white hover:bg-red-600 active:bg-red-700 shadow-sm focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-void",
+      "bg-risk-critical text-white hover:bg-red-600 active:bg-red-700 shadow-sm focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
     neutral:
-      "bg-surfaceElevated text-primary border border-default hover:bg-surfaceHighlight active:bg-surface focus-visible:ring-2 focus-visible:ring-brandLight focus-visible:ring-offset-2 focus-visible:ring-offset-void",
+      "bg-surfaceElevated text-primary border border-default hover:bg-surfaceHighlight active:bg-surface focus-visible:ring-2 focus-visible:ring-brandLight focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
   };
 
   const baseStyles = cn(
-    "inline-flex items-center justify-center gap-2.5 px-6 py-3 min-h-[48px] rounded-xl text-base font-semibold transition-colors duration-150 cursor-pointer select-none",
+    "inline-flex items-center justify-center gap-2.5 px-6 py-3 min-h-[48px] rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer select-none",
     disabled && "opacity-50 cursor-not-allowed pointer-events-none",
     variantStyles[variant],
     className

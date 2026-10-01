@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { IncidentItem } from "@/types/activity";
@@ -20,7 +22,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
   return (
     <article
       className={cn(
-        "rounded-xl bg-surface border border-subtle hover:border-default p-5 transition-colors",
+        "rounded-2xl bg-surface border border-subtle hover:border-default p-5 transition-colors shadow-sm",
         className
       )}
     >
@@ -29,13 +31,13 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
           <RiskBadge level={incident.riskLevel} size="sm" />
           <span className="text-xs text-muted font-mono">{incident.timestamp}</span>
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono">
+        <div className="flex items-center gap-2 text-xs">
           {incident.claimedIdentity && (
-            <span className="text-primary font-medium bg-surfaceElevated px-2 py-0.5 rounded border border-subtle">
-              Claimed: {incident.claimedIdentity}
+            <span className="text-primary font-medium bg-surfaceElevated px-2 py-0.5 rounded-full border border-subtle">
+              {incident.claimedIdentity}
             </span>
           )}
-          <span className="text-secondary">{incident.source}</span>
+          <span className="text-secondary font-mono">{incident.source}</span>
         </div>
       </div>
 
@@ -54,7 +56,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
 
       <div className="flex items-center justify-between pt-3 border-t border-subtle text-xs">
         <div className="text-muted">
-          Action:{" "}
+          Action taken:{" "}
           <span className="text-primary font-medium">
             {formatProtectiveAction(incident.actionTaken)}
           </span>
@@ -62,19 +64,10 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
 
         <Link
           href={targetHref}
-          className="inline-flex items-center gap-1 font-semibold text-brand hover:text-brandLight transition-colors"
+          className="inline-flex items-center gap-1 font-medium text-brand hover:text-brandLight transition-colors"
         >
-          <span>View Details</span>
-          <svg
-            className="w-3.5 h-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
+          <span>View incident</span>
+          <span aria-hidden="true">›</span>
         </Link>
       </div>
     </article>

@@ -26,10 +26,10 @@ export const ProtectionCapabilityDetail: React.FC<
     <Modal isOpen={isOpen} onClose={onClose} title={capability.name}>
       <div className="space-y-5">
         {/* Status & Platform Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-xl bg-surface border border-subtle">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-xl bg-surfaceElevated border border-subtle">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-              Connection Status
+            <div className="text-xs font-medium text-muted">
+              Location & status
             </div>
             <div className="text-sm font-semibold text-primary">
               {capability.statusLabel}
@@ -38,30 +38,30 @@ export const ProtectionCapabilityDetail: React.FC<
 
           <span
             className={cn(
-              "text-xs px-2.5 py-1 rounded-full font-semibold border",
+              "text-xs px-2.5 py-1 rounded-full font-medium border",
               isWebAvailable
                 ? "bg-risk-low-soft text-risk-low border-risk-low"
-                : "bg-surfaceElevated text-secondary border-default"
+                : "bg-surface text-secondary border-subtle"
             )}
           >
-            {capability.status.replace(/_/g, " ")}
+            {capability.platform === "WEB_COMPANION" ? "Web companion" : "Android device"}
           </span>
         </div>
 
-        {/* 1. WHAT IT DOES */}
+        {/* 1. What it does */}
         <div className="space-y-1.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
-            What It Does
+          <h3 className="text-xs font-medium text-secondary">
+            What it does
           </h3>
           <p className="text-sm text-secondary leading-relaxed bg-surface rounded-xl p-3.5 border border-subtle">
             {capability.whatItDoes}
           </p>
         </div>
 
-        {/* 2. WHERE IT RUNS */}
+        {/* 2. Where it runs */}
         <div className="space-y-1.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
-            Where It Runs
+          <h3 className="text-xs font-medium text-secondary">
+            Where it runs
           </h3>
           <div className="flex items-center gap-2.5 bg-surface rounded-xl p-3.5 border border-subtle text-xs text-secondary">
             <svg
@@ -83,10 +83,10 @@ export const ProtectionCapabilityDetail: React.FC<
           </div>
         </div>
 
-        {/* 3. WHAT YOU CAN DO */}
+        {/* 3. What you can do */}
         <div className="space-y-1.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
-            What You Can Do
+          <h3 className="text-xs font-medium text-secondary">
+            What you can do
           </h3>
           <p className="text-sm text-secondary leading-relaxed bg-surface rounded-xl p-3.5 border border-subtle">
             {capability.whatYouCanDo}
@@ -97,7 +97,7 @@ export const ProtectionCapabilityDetail: React.FC<
         <div className="pt-2 border-t border-subtle flex flex-col sm:flex-row gap-2.5">
           {capability.id === "link-check" && onOpenLinkCheck ? (
             <PrimarySafetyAction
-              label="Launch Link Inspector"
+              label="Open Link Inspector"
               onClick={() => {
                 onClose();
                 onOpenLinkCheck();
@@ -107,9 +107,9 @@ export const ProtectionCapabilityDetail: React.FC<
           ) : capability.primaryActionHref ? (
             <Link
               href={capability.primaryActionHref}
-              className="flex-1 inline-flex items-center justify-center px-6 py-3 min-h-[48px] rounded-xl text-base font-semibold bg-brand text-white hover:bg-blue-600 transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight"
+              className="flex-1 inline-flex items-center justify-center px-6 py-3 min-h-[48px] rounded-xl text-sm font-semibold bg-brand text-white hover:bg-brandLight transition-colors select-none focus-visible:ring-2 focus-visible:ring-brandLight"
             >
-              {capability.primaryActionLabel || "View Details"}
+              {capability.primaryActionLabel || "View details"}
             </Link>
           ) : null}
 

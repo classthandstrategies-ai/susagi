@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { VerificationSession } from "@/types/verification";
 
@@ -9,49 +11,26 @@ export const ResponderIdentityCard: React.FC<ResponderIdentityCardProps> = ({
   session,
 }) => {
   return (
-    <div className="rounded-2xl bg-surface border border-subtle p-6 space-y-4">
-      <div className="flex items-center justify-between text-xs text-muted">
-        <span className="font-semibold uppercase tracking-wider">
-          Incoming Identity Challenge
-        </span>
-        <span className="font-mono">
-          Session #{session.sessionId}
-        </span>
-      </div>
-
+    <div className="rounded-2xl bg-surface border border-subtle p-6 sm:p-8 space-y-5 shadow-sm">
       <div className="space-y-2">
-        <h2 className="text-lg sm:text-xl font-bold text-primary">
-          Are you making or authorizing this request?
+        <h2 className="text-xl sm:text-2xl font-semibold text-primary">
+          Is this you speaking with {session.requesterName} right now?
         </h2>
-        <div className="rounded-xl bg-surfaceElevated p-4 border border-subtle text-sm text-primary font-medium leading-relaxed">
-          &ldquo;{session.claim}&rdquo;
-        </div>
+        <p className="text-sm text-secondary leading-relaxed">
+          Someone claiming to be you is asking <strong className="text-primary">{session.requesterName}</strong> for an emergency transfer. Please confirm if this is really you.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
-        <div className="rounded-xl bg-surfaceElevated p-3 border border-subtle">
-          <span className="text-[10px] uppercase font-semibold text-muted block mb-0.5">
-            Requester
-          </span>
-          <span className="text-xs font-semibold text-primary block">
-            {session.requesterName}
-          </span>
-          <span className="text-[11px] font-mono text-secondary">
-            {session.requesterPhone}
-          </span>
-        </div>
+      <div className="rounded-xl bg-surfaceElevated p-4 border border-subtle space-y-1 text-xs">
+        <span className="text-muted font-medium">Claimed request:</span>
+        <p className="text-sm text-primary font-medium leading-relaxed">
+          &ldquo;{session.claim}&rdquo;
+        </p>
+      </div>
 
-        <div className="rounded-xl bg-surfaceElevated p-3 border border-subtle">
-          <span className="text-[10px] uppercase font-semibold text-muted block mb-0.5">
-            Timing
-          </span>
-          <span className="text-xs text-secondary block">
-            Received: {session.createdAt}
-          </span>
-          <span className="text-[11px] font-mono text-risk-caution">
-            Valid: {session.expiresAt}
-          </span>
-        </div>
+      <div className="flex items-center justify-between text-xs text-muted pt-2 border-t border-subtle">
+        <span>Requester: {session.requesterName} ({session.requesterPhone})</span>
+        <span>Valid until {session.expiresAt}</span>
       </div>
     </div>
   );
