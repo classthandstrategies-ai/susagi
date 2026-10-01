@@ -49,6 +49,8 @@ export interface RiskAssessment {
   signals: ScamSignal[];
   evidence?: ScamEvidence[];
   timestamp: string;
+  claimedIdentity?: string;
+  additionalActions?: ProtectiveAction[];
   hindiHeadline?: string;
   hindiExplanation?: string;
   hindiRecommendedAction?: string;
@@ -59,3 +61,15 @@ export type ProtectionState =
   | "PAUSED"
   | "ATTENTION_REQUIRED"
   | "OFFLINE";
+
+/**
+ * Explicit Live UI connection/stream states (NOT RiskLevel values).
+ * Normal web companion runtime lands on STANDBY or UNAVAILABLE.
+ */
+export type LiveConnectionState =
+  | "STANDBY"
+  | "CONNECTING"
+  | "ANALYZING"
+  | "ASSESSMENT_AVAILABLE"
+  | "UNAVAILABLE"
+  | "ERROR";

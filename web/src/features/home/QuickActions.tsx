@@ -59,7 +59,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
             </svg>
           </div>
           <span className="text-xs font-semibold text-primary group-hover:text-brand transition-colors">
-            Activity Log
+            Activity
           </span>
           <span className="text-[10px] text-muted mt-0.5">Audit History</span>
         </Link>
