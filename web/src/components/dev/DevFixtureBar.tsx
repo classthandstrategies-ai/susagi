@@ -158,41 +158,19 @@ export const DevFixtureBar: React.FC = () => {
 
           <div className="space-y-1.5 pt-1 border-t border-subtle">
             <div className="text-[10px] uppercase font-semibold text-muted">
-              Activity Ledger Fixtures
+              Guardian Circle Fixtures
             </div>
             <div className="grid grid-cols-2 gap-1.5">
               <button
                 type="button"
-                onClick={() => setFixture("mixed")}
+                onClick={() => setFixture("guardians")}
                 className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
-                  currentFixture === "mixed"
+                  currentFixture === "guardians"
                     ? "bg-brand text-white font-semibold"
                     : "bg-surface text-secondary hover:text-primary"
                 }`}
               >
-                Mixed History
-              </button>
-              <button
-                type="button"
-                onClick={() => setFixture("bank")}
-                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
-                  currentFixture === "bank"
-                    ? "bg-risk-critical text-white font-bold"
-                    : "bg-surface text-secondary hover:text-primary"
-                }`}
-              >
-                Bank Incident
-              </button>
-              <button
-                type="button"
-                onClick={() => setFixture("family")}
-                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
-                  currentFixture === "family"
-                    ? "bg-risk-high text-void font-bold"
-                    : "bg-surface text-secondary hover:text-primary"
-                }`}
-              >
-                Family Incident
+                Active Guardians
               </button>
               <button
                 type="button"
@@ -203,29 +181,81 @@ export const DevFixtureBar: React.FC = () => {
                     : "bg-surface text-secondary hover:text-primary"
                 }`}
               >
-                Empty State
+                Empty Circle
               </button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5 pt-1 border-t border-subtle">
+            <div className="text-[10px] uppercase font-semibold text-muted">
+              Verification CP3 States
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
               <button
                 type="button"
-                onClick={() => setFixture("loading")}
+                onClick={() => setFixture("ready")}
                 className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
-                  currentFixture === "loading"
-                    ? "bg-surfaceHighlight text-primary font-bold border border-default"
+                  currentFixture === "ready"
+                    ? "bg-brand text-white font-semibold"
                     : "bg-surface text-secondary hover:text-primary"
                 }`}
               >
-                Loading Skeleton
+                READY
               </button>
               <button
                 type="button"
-                onClick={() => setFixture("error")}
+                onClick={() => setFixture("pending")}
                 className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
-                  currentFixture === "error"
+                  currentFixture === "pending"
                     ? "bg-risk-caution text-void font-bold"
                     : "bg-surface text-secondary hover:text-primary"
                 }`}
               >
-                Error State
+                PENDING
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("verified")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "verified"
+                    ? "bg-risk-low text-void font-bold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                VERIFIED
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("rejected")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "rejected"
+                    ? "bg-risk-critical text-white font-bold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                REJECTED
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("expired")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "expired"
+                    ? "bg-surfaceHighlight text-primary font-bold border border-default"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                EXPIRED
+              </button>
+              <button
+                type="button"
+                onClick={() => setFixture("request")}
+                className={`px-2 py-1 rounded text-left transition-colors text-[11px] ${
+                  currentFixture === "request"
+                    ? "bg-brand text-white font-semibold"
+                    : "bg-surface text-secondary hover:text-primary"
+                }`}
+              >
+                Responder Req
               </button>
             </div>
           </div>

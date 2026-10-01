@@ -44,7 +44,7 @@ export const ActivityEmptyState: React.FC<ActivityEmptyStateProps> = ({
             <button
               type="button"
               onClick={onResetFilters}
-              className="px-4 py-2 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
+              className="min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
             >
               Clear Filters & Search
             </button>
@@ -155,13 +155,13 @@ export const ActivityEmptyState: React.FC<ActivityEmptyStateProps> = ({
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Link
           href="/protect"
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
+          className="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight inline-flex items-center justify-center text-center"
         >
           Review Protect Settings
         </Link>
         <Link
           href="/live"
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
+          className="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight inline-flex items-center justify-center text-center"
         >
           Open Live Defense
         </Link>

@@ -1,4 +1,5 @@
-import { VerificationSession, VerificationResult } from "@/types/verification";
+import { VerificationSession, VerificationResult, VerificationStatus } from "@/types/verification";
+import { allVerificationFixtures } from "@/fixtures/verificationFixtures";
 
 /**
  * Interface contract for remote identity verification operations.
@@ -58,3 +59,40 @@ export class OfflineVerificationService implements IVerificationService {
 
 export const verificationService: IVerificationService =
   new OfflineVerificationService();
+
+/**
+ * Development-only fixture provider for previewing Verification states.
+ * Only active when process.env.NODE_ENV === "development".
+ */
+export function getDevFixtureVerificationSession(fixtureKey?: string): {
+  status: VerificationStatus;
+  session: VerificationSession | null;
+  outcomeNote?: string;
+  isFixtureMode: boolean;
+} {
+  if (process.env.NODE_ENV !== "development" || !fixtureKey) {
+    return {
+      status: "UNAVAILABLE",
+      session: null,
+      isFixtureMode: false,
+    };
+  }
+
+  const key = fixtureKey.toLowerCase();
+  const fixture = allVerificationFixtures[key];
+
+  if (!fixture) {
+    return {
+      status: "UNAVAILABLE",
+      session: null,
+      isFixtureMode: true,
+    };
+  }
+
+  return {
+    status: fixture.status,
+    session: fixture,
+    outcomeNote: fixture.outcomeNote,
+    isFixtureMode: true,
+  };
+}

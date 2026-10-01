@@ -48,12 +48,12 @@ export const VerificationUnavailableDialog: React.FC<
 
         <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-subtle">
           <Link
-            href="/verification"
-            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-brand text-white font-semibold text-xs hover:bg-blue-600 transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
+            href={isFixtureMode ? "/verification?fixture=ready" : "/verification"}
+            className="flex-1 min-h-[48px] inline-flex items-center justify-center px-4 py-3 rounded-xl bg-brand text-white font-semibold text-xs hover:bg-brandLight transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
           >
-            View Requester States
+            View Requester Flow
           </Link>
-          <SecondarySafetyAction label="Close" onClick={onClose} />
+          <SecondarySafetyAction label="Close" onClick={onClose} className="min-h-[48px]" />
         </div>
       </div>
     </Modal>

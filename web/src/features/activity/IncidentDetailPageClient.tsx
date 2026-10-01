@@ -29,7 +29,7 @@ export const IncidentDetailPageClient: React.FC<IncidentDetailPageClientProps> =
       <div className="space-y-6 max-w-2xl mx-auto my-6">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brandLight transition-colors"
+          className="min-h-[48px] inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brandLight transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -73,7 +73,7 @@ export const IncidentDetailPageClient: React.FC<IncidentDetailPageClientProps> =
           <div className="pt-2">
             <Link
               href={backHref}
-              className="inline-flex px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight"
+              className="min-h-[48px] inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight"
             >
               Back to Activity
             </Link>
@@ -90,7 +90,7 @@ export const IncidentDetailPageClient: React.FC<IncidentDetailPageClientProps> =
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brandLight transition-colors"
+          className="min-h-[48px] inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brandLight transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

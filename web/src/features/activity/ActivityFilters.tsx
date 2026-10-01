@@ -70,13 +70,13 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search by title, phone, claimed identity, or keyword..."
-          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-surface border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary placeholder:text-muted transition-colors"
+          className="w-full pl-10 pr-10 min-h-[48px] rounded-xl bg-surface border border-subtle focus:border-default focus:ring-2 focus:ring-brandLight text-sm text-primary placeholder:text-muted transition-colors"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => onSearchChange("")}
-            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-muted hover:text-primary transition-colors cursor-pointer"
+            className="absolute inset-y-0 right-0 pr-3.5 min-w-[48px] flex items-center justify-center text-muted hover:text-primary transition-colors cursor-pointer"
             aria-label="Clear search query"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,7 +92,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
         <div
           role="group"
           aria-label="Filter by risk level"
-          className="flex flex-wrap items-center gap-1.5"
+          className="flex flex-wrap items-center gap-2"
         >
           {RISK_OPTIONS.map((opt) => {
             const isSelected = riskFilter === opt.value;
@@ -103,7 +103,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
                 aria-pressed={isSelected}
                 onClick={() => onRiskFilterChange(opt.value)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brandLight",
+                  "inline-flex items-center gap-2 px-3.5 min-h-[48px] rounded-xl text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brandLight",
                   isSelected
                     ? "bg-surfaceHighlight text-primary border border-default shadow-sm"
                     : "bg-surface text-secondary hover:text-primary border border-subtle hover:border-default"
@@ -127,7 +127,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
           <div
             role="group"
             aria-label="Filter by communication channel"
-            className="flex items-center gap-1"
+            className="flex flex-wrap items-center gap-1.5"
           >
             {CHANNEL_OPTIONS.map((ch) => {
               const isSelected = channelFilter === ch.value;
@@ -138,10 +138,10 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
                   aria-pressed={isSelected}
                   onClick={() => onChannelFilterChange(ch.value)}
                   className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-mono font-medium transition-colors cursor-pointer",
+                    "px-3 min-h-[48px] inline-flex items-center rounded-xl text-xs font-mono font-medium transition-colors cursor-pointer",
                     isSelected
                       ? "bg-brandSoft text-brand border border-brand/30"
-                      : "text-muted hover:text-secondary"
+                      : "text-muted hover:text-secondary bg-surface border border-subtle"
                   )}
                 >
                   {ch.label}
@@ -156,7 +156,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
             <button
               type="button"
               onClick={() => onSortByChange(sortBy === "NEWEST" ? "OLDEST" : "NEWEST")}
-              className="text-xs font-semibold text-secondary hover:text-primary px-2 py-1 rounded bg-surface border border-subtle hover:border-default transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brandLight"
+              className="text-xs font-semibold text-secondary hover:text-primary px-3 min-h-[48px] inline-flex items-center rounded-xl bg-surface border border-subtle hover:border-default transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brandLight"
               aria-label={`Sort order: ${sortBy === "NEWEST" ? "Newest First" : "Oldest First"}`}
             >
               {sortBy === "NEWEST" ? "Newest ↓" : "Oldest ↑"}

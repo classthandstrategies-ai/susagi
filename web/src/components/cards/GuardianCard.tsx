@@ -55,9 +55,9 @@ export const GuardianCard: React.FC<GuardianCardProps> = ({
           <button
             type="button"
             onClick={() => onChallenge(guardian)}
-            className="px-3 py-1.5 rounded-lg bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-primary text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brandLight"
+            className="min-h-[48px] px-3.5 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-primary text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer inline-flex items-center justify-center"
           >
-            Send Challenge
+            Preview Verification
           </button>
         )}
       </div>

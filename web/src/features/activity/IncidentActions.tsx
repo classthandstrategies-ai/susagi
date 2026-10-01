@@ -177,7 +177,7 @@ ${incident.outcome ? `Outcome: ${incident.outcome}` : ""}`.trim();
           <button
             type="button"
             onClick={handleCopySummary}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
+            className="w-full min-h-[48px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-default text-xs font-semibold text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
           >
             <svg className="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
@@ -189,7 +189,7 @@ ${incident.outcome ? `Outcome: ${incident.outcome}` : ""}`.trim();
           <button
             type="button"
             onClick={handleShare}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
+            className="w-full min-h-[48px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-secondary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brandLight cursor-pointer"
           >
             <svg className="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
@@ -202,7 +202,7 @@ ${incident.outcome ? `Outcome: ${incident.outcome}` : ""}`.trim();
             href="https://cybercrime.gov.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-brand transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
+            className="w-full min-h-[48px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-surfaceElevated hover:bg-surfaceHighlight border border-subtle text-xs font-semibold text-brand transition-colors focus-visible:ring-2 focus-visible:ring-brandLight text-center"
           >
             <span>Open cybercrime portal</span>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -214,7 +214,7 @@ ${incident.outcome ? `Outcome: ${incident.outcome}` : ""}`.trim();
           <button
             type="button"
             onClick={handlePrint}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-secondary transition-colors cursor-pointer"
+            className="w-full min-h-[48px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium text-muted hover:text-secondary transition-colors cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24-1.076-.673-2.13-1.28-3.16M6.72 13.829l3.18-3.18m-3.18 3.18l-3.18 3.18m13.829-6.72c1.076-.24 2.13-.673 3.16-1.28m-3.16 1.28l3.18-3.18m-3.18 3.18l-3.18 3.18" />
