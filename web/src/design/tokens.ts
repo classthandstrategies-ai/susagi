@@ -40,7 +40,7 @@ export const colors = {
   riskHighSoft: "rgba(249, 115, 22, 0.12)",
   riskHighBorder: "rgba(249, 115, 22, 0.35)",
 
-  riskCritical: "#EF4444", // Emergency crimson red (strictly for urgent threats)
+  riskCritical: "#EF4444", // Emergency crimson red (reserved for CRITICAL risk states and destructive/safety-critical actions)
   riskCriticalSoft: "rgba(239, 68, 68, 0.16)",
   riskCriticalBorder: "rgba(239, 68, 68, 0.45)",
 

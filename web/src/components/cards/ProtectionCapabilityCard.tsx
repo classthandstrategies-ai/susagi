@@ -7,11 +7,11 @@ interface ProtectionCapabilityCardProps {
   className?: string;
 }
 
-export const ProtectionCapabilityCard: React.FC<ProtectionCapabilityCardProps> = ({
-  capability,
-  className,
-}) => {
-  const isAvailable = capability.status === "ACTIVE";
+export const ProtectionCapabilityCard: React.FC<
+  ProtectionCapabilityCardProps
+> = ({ capability, className }) => {
+  const isAvailable = capability.status === "AVAILABLE";
+  const isWeb = capability.platform === "WEB_COMPANION";
 
   return (
     <div
@@ -26,13 +26,13 @@ export const ProtectionCapabilityCard: React.FC<ProtectionCapabilityCardProps> =
         </h4>
         <span
           className={cn(
-            "text-xs px-2 py-0.5 rounded font-medium border",
+            "text-xs px-2.5 py-1 rounded-full font-medium border",
             isAvailable
               ? "bg-risk-low-soft text-risk-low border-risk-low"
-              : "bg-surfaceHighlight text-muted border-subtle"
+              : "bg-surfaceElevated text-secondary border-default"
           )}
         >
-          {capability.status}
+          {capability.statusLabel}
         </span>
       </div>
 
@@ -44,12 +44,12 @@ export const ProtectionCapabilityCard: React.FC<ProtectionCapabilityCardProps> =
         <span
           className={cn(
             "w-2 h-2 rounded-full",
-            capability.supportedOnWeb ? "bg-brand" : "bg-muted"
+            isWeb ? "bg-brand" : "bg-muted"
           )}
           aria-hidden="true"
         />
         <span>
-          {capability.supportedOnWeb
+          {isWeb
             ? "Available on Web Companion"
             : "Requires Paired Android Device"}
         </span>

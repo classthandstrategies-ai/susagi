@@ -22,8 +22,6 @@ export interface VerificationSession {
   claim: string; // e.g. "Identity verification request from Bank"
   createdAt: string;
   expiresAt: string;
-  challengeCode?: string;
-  verificationMethod?: "VOICE_HASH" | "SMS_TOKEN" | "GUARDIAN_ATTESTATION";
 }
 
 export interface VerificationResult {

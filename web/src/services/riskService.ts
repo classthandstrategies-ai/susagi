@@ -1,5 +1,5 @@
 import { RiskAssessment } from "@/types/risk";
-import { ProtectionStatusSummary } from "@/types/protection";
+import { WebProtectionOverview } from "@/types/protection";
 
 /**
  * Interface contract for receiving risk assessments from authoritative engines.
@@ -7,7 +7,7 @@ import { ProtectionStatusSummary } from "@/types/protection";
  */
 export interface IRiskService {
   getCurrentAssessment(): Promise<RiskAssessment | null>;
-  getProtectionSummary(): Promise<ProtectionStatusSummary>;
+  getProtectionSummary(): Promise<WebProtectionOverview>;
 }
 
 export class OfflineRiskService implements IRiskService {
@@ -16,13 +16,16 @@ export class OfflineRiskService implements IRiskService {
     return null;
   }
 
-  async getProtectionSummary(): Promise<ProtectionStatusSummary> {
+  async getProtectionSummary(): Promise<WebProtectionOverview> {
     return {
-      state: "ACTIVE",
-      activeShieldsCount: 4,
+      state: "READY",
+      headline: "Web Companion Ready",
+      statusDescription:
+        "This companion is ready. Device protection status will appear here when connected to SuSagi services.",
+      deviceSyncStatus: "Device service not connected",
+      isDeviceConnected: false,
+      activeShieldsCount: 0,
       totalShieldsCount: 4,
-      lastInspectionTimestamp: new Date().toISOString(),
-      companionMode: "LOCAL_STANDBY",
     };
   }
 }

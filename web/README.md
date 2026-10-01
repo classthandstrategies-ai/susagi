@@ -11,7 +11,7 @@ Built with Next.js App Router, React 19, TypeScript, and Tailwind CSS.
   - `LOW`: Calm emerald green (`#10B981`)
   - `CAUTION`: Alert warm amber (`#F59E0B`)
   - `HIGH`: Elevated warning orange (`#F97316`)
-  - `CRITICAL`: Emergency crimson red (`#EF4444`, strictly reserved for urgent confirmed threats)
+  - `CRITICAL`: Emergency crimson red (`#EF4444`, reserved for CRITICAL risk states and destructive/safety-critical actions)
 - **CRITICAL RULE**: Red is NEVER the default product color. No cyber-neon, terminal, or hacker aesthetics.
 - **Cognitive Clarity Under Stress**: Adheres to the principle:
   `WHAT IS HAPPENING` → `WHY IT IS RISKY` → `WHAT THE USER SHOULD DO NEXT`.
