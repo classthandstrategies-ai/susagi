@@ -17,7 +17,7 @@ Built with Next.js App Router (Turbopack), React 19, TypeScript, and Tailwind CS
   `WHAT IS HAPPENING` → `WHY IT IS RISKY` → `WHAT THE USER SHOULD DO NEXT`.
 - **Accessibility & Ergonomics**:
   - Minimum 48px touch targets for all primary buttons, navigation items, filter chips, and dialog actions.
-  - WCAG AAA contrast ratios across all semantic tokens against void background.
+  - Designed for strong text contrast and visible focus states.
   - Web-local reduce-motion switch with immediate DOM application and local storage persistence.
 
 ## Core Architecture & Service Boundaries
@@ -26,7 +26,7 @@ Built with Next.js App Router (Turbopack), React 19, TypeScript, and Tailwind CS
 - **Honest Runtime State**: In production runtime without connected backend services, every route honestly declares its operational state (e.g., "Device service not connected", "Guardian service not connected", "Identity Verification Service Unavailable"). It never fabricates simulated telemetry or fake connection success.
 - **Strict Separation of Concerns**: Frontend components consume semantic contracts (`RiskLevel`, `ProtectiveAction`, `VerificationStatus`). The frontend **NEVER** calculates authoritative risk scores or applies numeric thresholds.
 - **Strict Development Fixture Isolation**: Fixtures under `src/fixtures/` and the interactive DevFixtureBar are strictly guarded by `process.env.NODE_ENV === "development"`. In production mode (`next start` / Vercel), query parameters such as `?fixture=...` are completely ignored, and no fixture badges or fixture data leak into production runtime.
-- **Android Host Relationship**: SuSagi Web Companion acts as an auxiliary monitoring and out-of-band verification interface. Native telephony interception, real-time acoustic ML scoring, and call termination execute exclusively on the host Android device (baseline checkpoint: `95f09cc9c512ac4d35f17c6f8b94d7528ded5053`).
+- **Android Host Relationship**: SuSagi Web Companion acts as an auxiliary monitoring and trusted-person verification interface. Native telephony interception, real-time acoustic ML scoring, and call termination execute exclusively on the host Android device (baseline checkpoint: `95f09cc9c512ac4d35f17c6f8b94d7528ded5053`).
 
 ## Local Development & Production Testing
 
@@ -61,7 +61,7 @@ Deployable directly on Vercel:
 - **Framework Preset**: `Next.js`
 - **Build Command**: `next build`
 - **Output Directory**: `.next`
-- **Node.js Version**: 18.x or 20.x
+- **Node.js Version**: Use the Node.js version supported by the project's current Next.js release.
 - **Environment Variables**: None required for core UI.
 
 ## Routes Structure
@@ -72,6 +72,6 @@ Deployable directly on Vercel:
 - `/activity` — Security Activity Ledger & Incident History
 - `/activity/[incidentId]` — Detailed Incident Breakdown & Audio Timeline
 - `/guardians` — Trusted Guardian Circle & Identity Network
-- `/verification` — Out-of-band Identity Verification Requester
+- `/verification` — Trusted-person Identity Verification Requester
 - `/verification/respond` — Verification Challenge Responder
 - `/settings` — Companion Operational Status, Accessibility Preferences, Privacy Disclosures & About Metadata

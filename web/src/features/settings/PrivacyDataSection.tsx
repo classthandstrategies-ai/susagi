@@ -33,22 +33,22 @@ export const PrivacyDataSection: React.FC = () => {
       </div>
 
       <div className="space-y-3">
-        {/* Zero Cloud Telemetry */}
+        {/* Product Analytics Disclosures */}
         <div className="rounded-xl bg-surface border border-subtle p-4 space-y-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold text-primary">
-              Zero Cloud Telemetry & Tracking
+              No product analytics configured
             </h3>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-risk-low-soft text-risk-low border border-risk-low">
-              VERIFIED LOCAL
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surfaceElevated text-secondary border border-subtle">
+              STANDALONE CLIENT
             </span>
           </div>
           <p className="text-xs text-secondary leading-relaxed">
-            The SuSagi Web Companion transmits no user tracking, analytical beacons, behavioral cookies, or diagnostic logs to third-party endpoints.
+            This web companion does not currently include product analytics or behavioral tracking code.
           </p>
         </div>
 
-        {/* Zero Audio Ingestion */}
+        {/* Microphone and Audio Access */}
         <div className="rounded-xl bg-surface border border-subtle p-4 space-y-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold text-primary">
@@ -59,7 +59,7 @@ export const PrivacyDataSection: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-secondary leading-relaxed">
-            This web interface never requests microphone or telephony permissions. Spoken audio is never recorded, buffered, or transmitted by the companion browser client.
+            This web companion does not currently request microphone access.
           </p>
         </div>
 

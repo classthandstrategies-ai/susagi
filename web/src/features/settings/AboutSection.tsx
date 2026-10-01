@@ -1,4 +1,5 @@
 import React from "react";
+import packageJson from "../../../package.json";
 
 export const AboutSection: React.FC = () => {
   return (
@@ -23,10 +24,10 @@ export const AboutSection: React.FC = () => {
               Product Version
             </div>
             <div className="text-sm font-semibold text-primary">
-              SuSagi Web Companion 1.0.0
+              Version {packageJson.version}
             </div>
             <div className="text-xs text-secondary mt-0.5">
-              Production Release Candidate
+              SuSagi Web Companion
             </div>
           </div>
 
@@ -62,7 +63,7 @@ export const AboutSection: React.FC = () => {
               High-Contrast Defense Standard
             </div>
             <div className="text-xs text-secondary mt-0.5">
-              WCAG AAA Contrast Tokens
+              Designed for strong text contrast
             </div>
           </div>
         </div>
@@ -73,7 +74,7 @@ export const AboutSection: React.FC = () => {
             Mission & Architecture
           </div>
           <p>
-            SuSagi is built to safeguard vulnerable individuals and families against coercive fraud, voice cloning, urgency extortion, and unauthorized transfers. The Android host application handles native telephony interception and acoustic scoring, while this Web Companion provides accessible oversight, incident history review, and out-of-band identity verification.
+            SuSagi is built to safeguard vulnerable individuals and families against coercive fraud, voice cloning, urgency extortion, and unauthorized transfers. The Android host application handles native telephony interception and acoustic scoring, while this Web Companion provides accessible oversight, incident history review, and trusted-person identity verification.
           </p>
         </div>
 
@@ -83,7 +84,7 @@ export const AboutSection: React.FC = () => {
             Emergency & Safety Notice:
           </span>
           <p>
-            SuSagi Web Companion is an auxiliary defensive utility. It is not an emergency response system. If you or someone you know is in immediate danger or being actively coerced into transferring funds, disconnect the call immediately and contact emergency authorities (112 / 911 / 999) or your financial institution directly.
+            SuSagi Web Companion is an auxiliary defensive utility. SuSagi does not replace local emergency services, your bank&apos;s official fraud support, or other appropriate authorities.
           </p>
         </div>
       </div>

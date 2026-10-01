@@ -101,15 +101,15 @@ export const AccessibilitySection: React.FC = () => {
         <div className="rounded-xl bg-surface border border-subtle p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="text-sm font-semibold text-primary">
-              High-Contrast Defense Theme
+              High-contrast interface
             </div>
             <p className="text-xs text-secondary leading-relaxed max-w-xl">
-              Strict deep-charcoal void backgrounds with high-luminance semantic alert tokens (emerald, amber, crimson) exceeding WCAG AAA contrast ratios for rapid comprehension under stress.
+              Designed for strong text contrast, visible focus states, and distinct semantic alert colors to support rapid comprehension under stress.
             </p>
           </div>
           <div className="shrink-0 self-start sm:self-auto">
             <span className="text-xs px-2.5 py-1 rounded-md font-semibold bg-risk-low-soft text-risk-low border border-risk-low">
-              ACTIVE (WCAG AAA)
+              ACTIVE
             </span>
           </div>
         </div>
@@ -118,7 +118,7 @@ export const AccessibilitySection: React.FC = () => {
         <div className="rounded-xl bg-surface border border-subtle p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="text-sm font-semibold text-primary">
-              Touch Target Architecture
+              48px minimum important control target
             </div>
             <p className="text-xs text-secondary leading-relaxed max-w-xl">
               All primary interactive controls across mobile, tablet, and desktop companion viewports maintain an enforced minimum 48×48px clickable target area.

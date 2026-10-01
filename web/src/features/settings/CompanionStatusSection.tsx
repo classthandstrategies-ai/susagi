@@ -52,7 +52,7 @@ const SERVICES: ServiceItem[] = [
     status: "UNAVAILABLE",
     statusLabel: "Unavailable",
     description:
-      "Out-of-band identity challenge service is currently unavailable in this companion runtime.",
+      "Trusted-person identity verification service is currently unavailable in this companion runtime.",
     badgeStyle: "bg-surfaceElevated text-muted border-subtle",
   },
 ];

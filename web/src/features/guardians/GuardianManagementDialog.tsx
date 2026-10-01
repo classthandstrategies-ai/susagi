@@ -236,9 +236,9 @@ export const GuardianManagementDialog: React.FC<GuardianManagementDialogProps> =
             </div>
 
             <div className="rounded-xl bg-surfaceElevated p-3.5 border border-subtle space-y-1">
-              <h4 className="text-xs font-semibold text-primary">2. Out-of-Band Verification</h4>
+              <h4 className="text-xs font-semibold text-primary">2. Trusted-person verification</h4>
               <p className="text-xs text-secondary leading-relaxed">
-                Trusted contacts verify uncharacteristic demands out of band through a future connected verification service.
+                When connected to SuSagi verification services, a trusted person can help confirm a sensitive request.
               </p>
             </div>
 
