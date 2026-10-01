@@ -32,8 +32,6 @@ android {
         val agoraAppId = localProperties.getProperty("AGORA_APP_ID")?.ifBlank { "d575bd8b35004ad896366419f3a8a8f1" } ?: "d575bd8b35004ad896366419f3a8a8f1"
         buildConfigField("String", "AGORA_APP_ID", "\"$agoraAppId\"")
 
-        val agoraAppCert = localProperties.getProperty("AGORA_APP_CERTIFICATE") ?: ""
-        buildConfigField("String", "AGORA_APP_CERTIFICATE", "\"$agoraAppCert\"")
 
         val bhashiniUserId = localProperties.getProperty("BHASHINI_USER_ID") ?: ""
         buildConfigField("String", "BHASHINI_USER_ID", "\"$bhashiniUserId\"")
@@ -116,7 +114,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    
+
     // Agora Voice & Audio RTC SDK
     implementation("io.agora.rtc:voice-sdk:4.4.1")
     // Agora RTM (Signaling) SDK for Real-Time Transcripts
@@ -140,9 +138,13 @@ dependencies {
     // OkHttp for Bhashini Streaming STT WebSocket & REST Translation/TTS
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-    // Firebase Cloud Messaging
+    // Firebase Cloud Messaging, Authentication & Cloud Firestore
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx") {
+        exclude(group = "com.google.guava", module = "listenablefuture")
+    }
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
