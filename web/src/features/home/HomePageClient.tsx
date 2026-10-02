@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { HomeViewState } from "./homeTypes";
 import { RiskBadge } from "@/components/risk/RiskBadge";
 import { LinkCheckDialog } from "@/features/protect/LinkCheckDialog";
+import {
+  subscribeOnboarding,
+  getOnboardingProgressSnapshot,
+  getServerOnboardingSnapshot,
+} from "@/features/onboarding/onboardingStorage";
 
 interface HomePageClientProps {
   initialState: HomeViewState;
@@ -13,14 +19,69 @@ interface HomePageClientProps {
 export const HomePageClient: React.FC<HomePageClientProps> = ({
   initialState,
 }) => {
+  const router = useRouter();
   const [isLinkCheckOpen, setIsLinkCheckOpen] = useState(false);
   const [linkInput, setLinkInput] = useState("");
+
+  const onboardingProgress = useSyncExternalStore(
+    subscribeOnboarding,
+    getOnboardingProgressSnapshot,
+    getServerOnboardingSnapshot
+  );
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
   const { overview, recentIncidents, guardians, isFixtureMode } = initialState;
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    // First visit redirect: only if introduction has never been seen AND onboarding not completed
+    if (
+      !onboardingProgress.introductionSeen &&
+      !onboardingProgress.onboardingCompleted
+    ) {
+      router.replace("/onboarding");
+    }
+  }, [
+    isClient,
+    onboardingProgress.introductionSeen,
+    onboardingProgress.onboardingCompleted,
+    router,
+  ]);
 
   const handleLinkSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLinkCheckOpen(true);
   };
+
+  const isFirstVisit =
+    isClient &&
+    !onboardingProgress.introductionSeen &&
+    !onboardingProgress.onboardingCompleted;
+
+  if (isFirstVisit) {
+    return (
+      <div className="py-24 text-center text-xs text-muted">
+        Starting safety walkthrough...
+      </div>
+    );
+  }
+
+  const hasUnfinishedTasks =
+    !overview.isDeviceConnected || guardians.length === 0;
+  const showFinishSetup =
+    isClient &&
+    (onboardingProgress.introductionSeen ||
+      onboardingProgress.onboardingCompleted) &&
+    hasUnfinishedTasks;
+
+  const continueSetupHref = !overview.isDeviceConnected
+    ? "/onboarding?step=connect-protection"
+    : "/onboarding?step=guardian";
 
   return (
     <div className="space-y-10 max-w-3xl mx-auto">
@@ -43,6 +104,69 @@ export const HomePageClient: React.FC<HomePageClientProps> = ({
           SuSagi helps you review suspicious activity, coordinate identity checks, and inspect links before you open them.
         </p>
       </header>
+
+      {/* Finish Setting Up SuSagi Block */}
+      {showFinishSetup && (
+        <section
+          aria-labelledby="finish-setup-title"
+          className="rounded-2xl bg-surface border border-subtle p-5 sm:p-6 space-y-4 shadow-xs"
+        >
+          <div className="space-y-1">
+            <h2
+              id="finish-setup-title"
+              className="text-base font-bold text-primary tracking-tight"
+            >
+              Finish setting up SuSagi
+            </h2>
+            <p className="text-xs sm:text-sm text-secondary leading-relaxed">
+              Complete these setup steps to activate full companion capabilities.
+            </p>
+          </div>
+
+          <div className="divide-y divide-subtle">
+            {!overview.isDeviceConnected && (
+              <div className="py-3 flex items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-primary">
+                    Connect phone protection
+                  </div>
+                  <div className="text-muted">
+                    Phone connection isn&apos;t available in this preview yet.
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-surfaceElevated text-secondary border border-subtle shrink-0">
+                  Not connected
+                </span>
+              </div>
+            )}
+
+            {guardians.length === 0 && (
+              <div className="py-3 flex items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-primary">
+                    Add someone to Guardian Circle
+                  </div>
+                  <div className="text-muted">
+                    Choose someone you trust when something doesn&apos;t feel right.
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-surfaceElevated text-secondary border border-subtle shrink-0">
+                  Not configured
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-1">
+            <Link
+              href={continueSetupHref}
+              className="inline-flex items-center justify-center min-h-[48px] px-5 py-2.5 rounded-xl bg-brand text-white font-medium text-xs hover:bg-brandLight transition-colors focus-visible:ring-2 focus-visible:ring-brand cursor-pointer shadow-xs"
+            >
+              Continue setup
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* 2. DOMINANT STATE: Your Protection Card */}
       <section

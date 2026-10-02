@@ -1,4 +1,7 @@
+"use client";
+
 import React, { Suspense } from "react";
+import { usePathname } from "next/navigation";
 import { TopBar } from "./TopBar";
 import { MobileNavigation } from "./MobileNavigation";
 import { DevFixtureBar } from "../dev/DevFixtureBar";
@@ -8,6 +11,25 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
+  const pathname = usePathname();
+  const isOnboarding = pathname?.startsWith("/onboarding");
+
+  if (isOnboarding) {
+    return (
+      <div className="min-h-screen bg-base text-primary antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-brand focus:text-white focus:rounded-lg focus:shadow-xl focus:outline-none"
+        >
+          Skip to main content
+        </a>
+        <div id="main-content">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-base text-primary flex flex-col antialiased">
       {/* Accessible skip link */}
