@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 val localProperties = Properties().apply {
@@ -32,8 +33,6 @@ android {
         val agoraAppId = localProperties.getProperty("AGORA_APP_ID")?.ifBlank { "d575bd8b35004ad896366419f3a8a8f1" } ?: "d575bd8b35004ad896366419f3a8a8f1"
         buildConfigField("String", "AGORA_APP_ID", "\"$agoraAppId\"")
 
-        val agoraAppCert = localProperties.getProperty("AGORA_APP_CERTIFICATE") ?: ""
-        buildConfigField("String", "AGORA_APP_CERTIFICATE", "\"$agoraAppCert\"")
 
         val bhashiniUserId = localProperties.getProperty("BHASHINI_USER_ID") ?: ""
         buildConfigField("String", "BHASHINI_USER_ID", "\"$bhashiniUserId\"")
@@ -55,6 +54,12 @@ android {
 
         val backendUrl = localProperties.getProperty("BACKEND_URL") ?: "http://192.168.29.62:3001"
         buildConfigField("String", "BACKEND_URL", "\"$backendUrl\"")
+
+        val supabaseUrl = localProperties.getProperty("SUPABASE_URL") ?: ""
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+
+        val supabaseAnonKey = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
     }
 
     buildTypes {
@@ -116,7 +121,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    
+
     // Agora Voice & Audio RTC SDK
     implementation("io.agora.rtc:voice-sdk:4.4.1")
     // Agora RTM (Signaling) SDK for Real-Time Transcripts
@@ -140,7 +145,14 @@ dependencies {
     // OkHttp for Bhashini Streaming STT WebSocket & REST Translation/TTS
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-    // Firebase Cloud Messaging
+    // Supabase Kotlin Multiplatform Client
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.3"))
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
+    implementation("io.ktor:ktor-client-okhttp:3.0.2")
+
+    // Firebase Cloud Messaging (FCM only - retained for notification transport)
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
 
