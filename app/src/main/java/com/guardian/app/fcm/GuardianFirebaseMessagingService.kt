@@ -20,7 +20,7 @@ class GuardianFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("GuardianFCM", "New FCM token received: ${token.take(10)}...")
+        Log.d("GuardianFCM", "New FCM token received")
         DeviceIdentityStore.savePendingFcmToken(applicationContext, token)
         syncDeviceToken(token)
     }

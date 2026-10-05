@@ -27,6 +27,11 @@ import com.guardian.app.ui.theme.GxWarning
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.guardian.app.auth.SupabaseAuthManager
+import com.guardian.app.device.DeviceRegistrationCoordinator
 import com.guardian.app.ui.guardians.VerificationNotificationIntentParser
 import com.guardian.app.ui.guardians.VerificationResponseScreen
 
@@ -58,12 +63,15 @@ class MainActivity : ComponentActivity() {
                     return@addOnCompleteListener
                 }
                 val token = task.result
-                android.util.Log.d("GuardianFCM", "Current FCM token: ${token.take(20)}...")
+                android.util.Log.d("GuardianFCM", "FCM token available")
                 com.guardian.app.device.DeviceIdentityStore.savePendingFcmToken(applicationContext, token)
+                attemptDeviceRegistration()
             }
         } catch (e: Exception) {
             android.util.Log.e("GuardianFCM", "Firebase messaging init fallback", e)
         }
+
+        attemptDeviceRegistration()
         setContent {
             GuardianTheme {
                 val verificationId = pendingVerificationSessionId
@@ -115,6 +123,28 @@ class MainActivity : ComponentActivity() {
         val route = VerificationNotificationIntentParser.parse(intent)
         if (route != null) {
             pendingVerificationSessionId = route.sessionId
+        }
+    }
+
+    private fun attemptDeviceRegistration() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val authManager = SupabaseAuthManager()
+                val authResult = authManager.ensureAuthenticated()
+                if (authResult.isSuccess) {
+                    val regResult = DeviceRegistrationCoordinator.registerCurrentTokenIfAvailable(
+                        context = applicationContext,
+                        authManager = authManager
+                    )
+                    if (regResult.isFailure) {
+                        android.util.Log.w("DeviceReg", "Pending FCM registration deferred: ${regResult.exceptionOrNull()?.message}")
+                    }
+                } else {
+                    android.util.Log.d("DeviceReg", "Auth deferred for registration: ${authResult.exceptionOrNull()?.message}")
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("DeviceReg", "Device registration attempt failed safely", e)
+            }
         }
     }
 }
