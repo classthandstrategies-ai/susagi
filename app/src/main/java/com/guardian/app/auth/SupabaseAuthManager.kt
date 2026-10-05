@@ -42,6 +42,9 @@ class SupabaseAuthManager(
                 IllegalStateException("Supabase configuration is missing. Set SUPABASE_URL and SUPABASE_ANON_KEY in local.properties.")
             )
         }
+        try {
+            client.auth.awaitInitialization()
+        } catch (_: Exception) {}
         val uid = currentUserId
         if (!uid.isNullOrBlank()) {
             return Result.success(uid)
