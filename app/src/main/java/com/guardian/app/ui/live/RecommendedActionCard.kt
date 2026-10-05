@@ -123,8 +123,16 @@ fun RecommendedActionCard(
                             height = 48.dp
                         )
                         if (!uiState.isIdentityVerificationAvailable) {
+                            val defaultReason = if (isHindi) "पहचान सत्यापन अभी उपलब्ध नहीं है।" else "Identity verification is not available yet."
+                            val reasonText = uiState.identityVerificationUnavailableReason?.let { reason ->
+                                if (isHindi && reason == "No connected Guardian is available for identity verification.") {
+                                    "पहचान सत्यापन के लिए कोई अभिभावक उपलब्ध नहीं है।"
+                                } else {
+                                    reason
+                                }
+                            } ?: defaultReason
                             Text(
-                                text = if (isHindi) "पहचान सत्यापन अभी उपलब्ध नहीं है।" else "Identity verification is not available yet.",
+                                text = reasonText,
                                 style = SuSagiTheme.typography.caption,
                                 color = SuSagiColors.TextMuted,
                                 modifier = Modifier.padding(horizontal = 4.dp)

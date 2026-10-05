@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Card
+import com.guardian.app.ui.guardians.VerificationStatus
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -147,6 +150,73 @@ fun SuSagiLiveDefenseScreen(
             uiState = uiState,
             isHindi = isHindi
         )
+
+        // ----------------------------------------------------
+        // VERIFICATION OUTCOME BANNER (IF ACTIVE / RESOLVED)
+        // ----------------------------------------------------
+        if (uiState.verificationOutcomeHeadline != null) {
+            val isRejected = uiState.verificationOutcomeStatus == VerificationStatus.REJECTED
+            val isVerified = uiState.verificationOutcomeStatus == VerificationStatus.VERIFIED
+            val containerColor = when {
+                isRejected -> SuSagiColors.RiskHighSoft
+                isVerified -> SuSagiColors.RiskLowSoft
+                else -> SuSagiColors.RiskCautionSoft
+            }
+            val borderColor = when {
+                isRejected -> SuSagiColors.RiskHighBorder
+                isVerified -> SuSagiColors.RiskLowBorder
+                else -> SuSagiColors.RiskCautionBorder
+            }
+            val iconColor = when {
+                isRejected -> SuSagiColors.RiskHigh
+                isVerified -> SuSagiColors.RiskLow
+                else -> SuSagiColors.RiskCaution
+            }
+            val icon = when {
+                isRejected -> Icons.Default.WarningAmber
+                isVerified -> Icons.Default.CheckCircle
+                else -> Icons.Default.Info
+            }
+
+            Surface(
+                shape = SuSagiShape.sm,
+                color = containerColor,
+                border = BorderStroke(1.dp, borderColor),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = uiState.verificationOutcomeHeadline.orEmpty(),
+                            style = SuSagiTheme.typography.title,
+                            color = SuSagiColors.TextPrimary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        val detail = uiState.verificationOutcomeDetail
+                        if (detail != null) {
+                            Text(
+                                text = detail,
+                                style = SuSagiTheme.typography.caption,
+                                color = SuSagiColors.TextSecondary,
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         // ----------------------------------------------------
         // 2. WHAT SHOULD I DO NEXT: RECOMMENDED ACTION & BUTTONS

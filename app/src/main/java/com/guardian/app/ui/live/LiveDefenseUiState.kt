@@ -46,9 +46,15 @@ data class LiveDefenseUiState(
     val canEndCall: Boolean = true,
     val canVerifyIdentity: Boolean = true,
     val isIdentityVerificationAvailable: Boolean = false,
+    val identityVerificationUnavailableReason: String? = null,
+    val identityVerificationUnavailableReasonHi: String? = null,
+    val verificationOutcomeHeadline: String? = null,
+    val verificationOutcomeDetail: String? = null,
+    val verificationOutcomeStatus: com.guardian.app.ui.guardians.VerificationStatus? = null,
     val isOfflineMode: Boolean = false,
     val errorMessage: String? = null
 ) {
+
     companion object {
 
         /* ============================================================================
@@ -76,7 +82,13 @@ data class LiveDefenseUiState(
             isDetecting: Boolean,
             isAnalyzing: Boolean,
             errorMessage: String?,
-            isHindi: Boolean = false
+            isHindi: Boolean = false,
+            isIdentityVerificationAvailable: Boolean = false,
+            identityVerificationUnavailableReason: String? = null,
+            identityVerificationUnavailableReasonHi: String? = null,
+            verificationOutcomeHeadline: String? = null,
+            verificationOutcomeDetail: String? = null,
+            verificationOutcomeStatus: com.guardian.app.ui.guardians.VerificationStatus? = null
         ): LiveDefenseUiState {
             val level = mapRiskScoreToPresentationLevel(report.riskScore)
 
@@ -89,6 +101,26 @@ data class LiveDefenseUiState(
 
             // Extract human-friendly signals from real runtime breakdown
             val formattedSignals = mutableListOf<LiveSignalUiModel>()
+
+            // 0. Prepend terminal verification outcomes if present
+            if (verificationOutcomeStatus == com.guardian.app.ui.guardians.VerificationStatus.REJECTED) {
+                formattedSignals.add(
+                    LiveSignalUiModel(
+                        title = if (isHindi) "अभिभावक सत्यापन अस्वीकृत" else "Guardian Verification Rejected",
+                        description = verificationOutcomeHeadline ?: (if (isHindi) "सत्यापन असफल रहा।" else "Trusted contact reported request is not from them."),
+                        isCritical = true
+                    )
+                )
+            } else if (verificationOutcomeStatus == com.guardian.app.ui.guardians.VerificationStatus.VERIFIED) {
+                formattedSignals.add(
+                    LiveSignalUiModel(
+                        title = if (isHindi) "पहचान सत्यापित" else "Guardian Verified Identity",
+                        description = verificationOutcomeHeadline ?: (if (isHindi) "अभिभावक ने पुष्टि की।" else "Guardian confirmed caller attribution."),
+                        isCautionary = false,
+                        isCritical = false
+                    )
+                )
+            }
 
             // 1. Runtime topSignals formatted for human readability
             report.topSignals.forEach { raw ->
@@ -191,11 +223,17 @@ data class LiveDefenseUiState(
                 recommendedActionDetailHi = recDetailHi,
                 canEndCall = true,
                 canVerifyIdentity = level != SuSagiRiskLevel.LOW,
-                isIdentityVerificationAvailable = false,
+                isIdentityVerificationAvailable = isIdentityVerificationAvailable,
+                identityVerificationUnavailableReason = identityVerificationUnavailableReason,
+                identityVerificationUnavailableReasonHi = identityVerificationUnavailableReasonHi,
+                verificationOutcomeHeadline = verificationOutcomeHeadline,
+                verificationOutcomeDetail = verificationOutcomeDetail,
+                verificationOutcomeStatus = verificationOutcomeStatus,
                 isOfflineMode = report.isOffline,
                 errorMessage = errorMessage
             )
         }
+
     }
 }
 

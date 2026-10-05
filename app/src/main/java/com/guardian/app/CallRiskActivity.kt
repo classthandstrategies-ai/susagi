@@ -94,12 +94,16 @@ import com.guardian.app.ui.theme.GxTheme
 import com.guardian.app.ui.theme.GxType
 import com.guardian.app.ui.theme.GxVoid
 import com.guardian.app.ui.design.SuSagiTheme
+import com.guardian.app.ui.guardians.GuardianSelectionDialog
+import com.guardian.app.ui.guardians.IdentityVerificationRequesterScreen
 import com.guardian.app.ui.live.LiveDefenseUiState
 import com.guardian.app.ui.live.SuSagiLiveDefenseScreen
+import com.guardian.app.verification.PhoneAVerificationController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class CallRiskActivity : ComponentActivity() {
+    private lateinit var phoneAVerificationController: PhoneAVerificationController
     private val microphonePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) startDetection() else {
@@ -158,8 +162,14 @@ class CallRiskActivity : ComponentActivity() {
         semanticAnalyzer = SemanticAnalyzer(this)
         agoraEngine = AgoraEngine(this)
         warningPlayer = com.guardian.app.callprotect.CriticalWarningPlayer(this)
+        phoneAVerificationController = PhoneAVerificationController(coroutineScope = lifecycleScope)
+        phoneAVerificationController.loadCanonicalGuardians()
 
         currentCallerNumber = intent?.getStringExtra(CallProtectionService.EXTRA_NUMBER).orEmpty()
+        phoneAVerificationController.updateCallDetails(
+            callerName = currentCallerNumber.ifBlank { "Current Call" },
+            callerNumber = currentCallerNumber
+        )
         if (currentCallerNumber.isNotBlank()) {
             lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 val repo = com.guardian.app.callprotect.NumberReputationRepository(applicationContext)
@@ -196,40 +206,122 @@ class CallRiskActivity : ComponentActivity() {
 
         setContent {
             val agoraCallState by agoraEngine?.callState?.collectAsState() ?: remember { mutableStateOf(AgoraCallState.DISCONNECTED) }
+            val verificationState by phoneAVerificationController.state.collectAsState()
+            var showVerificationRequester by remember { mutableStateOf(false) }
+            var showGuardianSelectionDialog by remember { mutableStateOf(false) }
+            val isHindi = (selectedLanguage == LanguageMode.HINDI || getSelectedLanguageFromPrefs() == "hi")
 
             SuSagiTheme {
-                val liveState = remember(riskReport, transcript, currentCallerNumber, isDetecting, isAnalyzing, errorMessage, agoraCallState) {
-                    LiveDefenseUiState.fromRuntime(
-                        report = riskReport,
-                        transcript = transcript,
-                        callerNumber = currentCallerNumber,
-                        isDetecting = isDetecting || isDemoModePlaying || agoraCallState == AgoraCallState.IN_CALL || agoraCallState == AgoraCallState.CONNECTING,
-                        isAnalyzing = isAnalyzing,
-                        errorMessage = errorMessage
+                if (showVerificationRequester) {
+                    val callerClaimed = riskReport.engines.pretextLegitimacy.summary.takeIf { it.isNotBlank() }
+                        ?: currentCallerNumber.ifBlank { "Incoming Call" }
+                    val currentModel = verificationState.requesterUiModel.copy(
+                        callerName = callerClaimed,
+                        callerNumber = currentCallerNumber.ifBlank { "Unknown Caller" }
+                    )
+                    IdentityVerificationRequesterScreen(
+                        uiModel = currentModel,
+                        onSendVerification = {
+                            val action = if (riskReport.riskScore >= 60) "Confirm caller identity immediately" else "Verify identity"
+                            val summary = riskReport.plainReasoning.ifBlank { riskReport.explanationEn }.take(120)
+                            phoneAVerificationController.startVerificationRequest(
+                                currentRiskScore = riskReport.riskScore,
+                                detectedAction = action,
+                                transcriptSummary = summary
+                            )
+                        },
+                        onCancelVerification = {
+                            showVerificationRequester = false
+                        },
+                        onEndCall = {
+                            com.guardian.app.callprotect.CallActionHelper.endCall(this@CallRiskActivity)
+                            stopDetection()
+                            finish()
+                        },
+                        onReturnToCall = {
+                            showVerificationRequester = false
+                        },
+                        isHindi = isHindi
+                    )
+                } else {
+                    val effectiveRiskScore = phoneAVerificationController.calculateEffectiveRiskScore(riskReport.riskScore)
+                    val effectiveReport = remember(riskReport, effectiveRiskScore) {
+                        if (riskReport.riskScore != effectiveRiskScore) {
+                            riskReport.copy(riskScore = effectiveRiskScore)
+                        } else {
+                            riskReport
+                        }
+                    }
+
+                    val liveState = remember(
+                        effectiveReport,
+                        transcript,
+                        currentCallerNumber,
+                        isDetecting,
+                        isAnalyzing,
+                        errorMessage,
+                        agoraCallState,
+                        verificationState,
+                        isHindi
+                    ) {
+                        LiveDefenseUiState.fromRuntime(
+                            report = effectiveReport,
+                            transcript = transcript,
+                            callerNumber = currentCallerNumber,
+                            isDetecting = isDetecting || isDemoModePlaying || agoraCallState == AgoraCallState.IN_CALL || agoraCallState == AgoraCallState.CONNECTING,
+                            isAnalyzing = isAnalyzing,
+                            errorMessage = errorMessage,
+                            isHindi = isHindi,
+                            isIdentityVerificationAvailable = verificationState.isIdentityVerificationAvailable,
+                            identityVerificationUnavailableReason = verificationState.unavailableReason,
+                            verificationOutcomeHeadline = verificationState.verificationOutcomeHeadline,
+                            verificationOutcomeDetail = verificationState.verificationOutcomeDetail,
+                            verificationOutcomeStatus = verificationState.verificationOutcomeStatus
+                        )
+                    }
+
+                    SuSagiLiveDefenseScreen(
+                        uiState = liveState,
+                        onVerifyIdentity = {
+                            if (verificationState.guardians.size > 1 && verificationState.selectedGuardian == null) {
+                                showGuardianSelectionDialog = true
+                            } else {
+                                showVerificationRequester = true
+                            }
+                        },
+                        onEndCall = {
+                            com.guardian.app.callprotect.CallActionHelper.endCall(this@CallRiskActivity)
+                            stopDetection()
+                            finish()
+                        },
+                        onBlockNumber = {
+                            val num = currentCallerNumber.ifBlank { "Unknown" }
+                            val ok = com.guardian.app.callprotect.CallActionHelper.blockNumber(this@CallRiskActivity, num)
+                            if (ok) {
+                                android.widget.Toast.makeText(this@CallRiskActivity, "Blocked $num", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        onClose = {
+                            finish()
+                        },
+                        isHindi = isHindi
                     )
                 }
 
-                SuSagiLiveDefenseScreen(
-                    uiState = liveState,
-                    onVerifyIdentity = {
-                        // CP3 PLATFORM DEPENDENCY: Awaiting Platform VerificationSession creation
-                    },
-                    onEndCall = {
-                        com.guardian.app.callprotect.CallActionHelper.endCall(this@CallRiskActivity)
-                        stopDetection()
-                        finish()
-                    },
-                    onBlockNumber = {
-                        val num = currentCallerNumber.ifBlank { "Unknown" }
-                        val ok = com.guardian.app.callprotect.CallActionHelper.blockNumber(this@CallRiskActivity, num)
-                        if (ok) {
-                            android.widget.Toast.makeText(this@CallRiskActivity, "Blocked $num", android.widget.Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    onClose = {
-                        finish()
-                    }
-                )
+                if (showGuardianSelectionDialog) {
+                    GuardianSelectionDialog(
+                        guardians = verificationState.guardians,
+                        onSelectGuardian = { guardian ->
+                            phoneAVerificationController.selectGuardian(guardian)
+                            showGuardianSelectionDialog = false
+                            showVerificationRequester = true
+                        },
+                        onDismiss = {
+                            showGuardianSelectionDialog = false
+                        },
+                        isHindi = isHindi
+                    )
+                }
             }
         }
     }
@@ -299,6 +391,13 @@ class CallRiskActivity : ComponentActivity() {
                 topSignals = reasons,
                 backendUrl = backendUrl
             )
+        }
+
+        if (::phoneAVerificationController.isInitialized) {
+            val effectiveScore = phoneAVerificationController.calculateEffectiveRiskScore(enhanced.riskScore)
+            if (effectiveScore != enhanced.riskScore) {
+                enhanced = enhanced.copy(riskScore = effectiveScore)
+            }
         }
 
         return enhanced
@@ -599,6 +698,9 @@ class CallRiskActivity : ComponentActivity() {
         stopDetection()
         warningPlayer?.release()
         agoraEngine?.destroy()
+        if (::phoneAVerificationController.isInitialized) {
+            phoneAVerificationController.cleanup()
+        }
         super.onDestroy()
     }
 }

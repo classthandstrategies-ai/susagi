@@ -73,7 +73,7 @@ import com.guardian.app.ui.design.SuSagiTheme
  * - READY: Before initiation (disables action if Platform session is unavailable)
  * - PENDING: Challenge sent, awaiting responder decision with live countdown
  * - VERIFIED: Contact confirmed identity (with conservative transaction caution)
- * - REJECTED: Imposter detected! Urgent protective advice and one-tap End Call
+ * - REJECTED: Guardian rejected identity. Urgent protective advice and one-tap End Call
  * - EXPIRED: Timeout reached without response
  * - UNAVAILABLE: Platform or network offline
  */
@@ -363,7 +363,7 @@ private fun PendingStateCard(
             )
 
             SecondarySafetyAction(
-                text = if (isHindi) "अनुरोध रद्द करें" else "Cancel Verification",
+                text = if (isHindi) "कॉल पर वापस जाएं" else "Return to Call",
                 onClick = onCancelVerification,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -734,7 +734,7 @@ private fun RequesterVerifiedPreview() {
 }
 
 /* UI PREVIEW DATA — NOT RUNTIME DATA */
-@Preview(name = "Requester — 4. REJECTED (Imposter!)", showBackground = true, backgroundColor = 0xFF0D1117)
+@Preview(name = "Requester — 4. REJECTED", showBackground = true, backgroundColor = 0xFF0D1117)
 @Composable
 private fun RequesterRejectedPreview() {
     SuSagiTheme {
