@@ -23,6 +23,11 @@ import com.guardian.app.ui.theme.GxDanger
 import com.guardian.app.ui.theme.GxSafe
 import com.guardian.app.ui.theme.GxWarning
 
+/**
+ * GxLiveDot (Refined)
+ *
+ * Refined to provide a gentle, calm breathing pulse instead of a distracting radar blip.
+ */
 @Composable
 fun GxLiveDot(
     modifier: Modifier = Modifier,
@@ -42,19 +47,19 @@ fun GxLiveDot(
     val infiniteTransition = rememberInfiniteTransition(label = "live-dot-transition")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = 2.0f,
+        targetValue = 1.4f, // Calm subtle halo
         animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
+            animation = tween(1600, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "pulse-scale"
     )
 
     val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
+        initialValue = 0.4f,
         targetValue = 0.0f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
+            animation = tween(1600, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "pulse-alpha"
@@ -64,7 +69,7 @@ fun GxLiveDot(
         modifier = modifier.size(size * 2),
         contentAlignment = Alignment.Center
     ) {
-        // Glowing Halo
+        // Subtle Breathing Halo
         Box(
             modifier = Modifier
                 .size(size)

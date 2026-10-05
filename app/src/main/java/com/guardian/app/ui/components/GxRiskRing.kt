@@ -25,9 +25,14 @@ import com.guardian.app.ui.theme.GxBorder
 import com.guardian.app.ui.theme.GxDanger
 import com.guardian.app.ui.theme.GxSafe
 import com.guardian.app.ui.theme.GxTextHi
-import com.guardian.app.ui.theme.GxTextLo
 import com.guardian.app.ui.theme.GxWarning
 
+/**
+ * GxRiskRing (Legacy / Deprecated as Primary UX)
+ *
+ * NOTE: For new SuSagi screens, prefer semantic presentation components [RiskSummary]
+ * and [RiskBadge]. Kept here to maintain full backward compatibility with existing screens.
+ */
 @Composable
 fun GxRiskRing(
     riskScore: Int,
@@ -88,17 +93,17 @@ fun GxRiskRing(
                 color = GxTextHi,
                 fontSize = if (size >= 120.dp) 30.sp else 20.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace
+                fontFamily = FontFamily.SansSerif
             )
             if (showLabel && size >= 120.dp) {
                 Text(
                     text = when {
                         riskScore >= 70 -> "HIGH RISK"
                         riskScore >= 40 -> "CAUTION"
-                        else -> "NORMAL"
+                        else -> "PROTECTED"
                     },
                     color = animatedColor,
-                    fontSize = 10.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
                 )

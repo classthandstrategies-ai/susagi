@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,6 +44,12 @@ enum class GxChipVariant {
     Brand
 }
 
+/**
+ * GxChip (Refined)
+ *
+ * Refined to eliminate unreadable 11sp text, improve color contrast,
+ * and support accessible touch interaction.
+ */
 @Composable
 fun GxChip(
     text: String,
@@ -50,20 +57,28 @@ fun GxChip(
     variant: GxChipVariant = GxChipVariant.Neutral,
     icon: ImageVector? = null,
     onClick: (() -> Unit)? = null,
-    height: Dp = 28.dp
+    height: Dp = 30.dp
 ) {
     val (bgColor, textColor, borderColor) = when (variant) {
         GxChipVariant.Neutral -> Triple(GxSurfaceAlt, GxTextMid, GxBorder)
-        GxChipVariant.Safe -> Triple(GxSafeSoft, GxSafe, GxSafe.copy(alpha = 0.4f))
-        GxChipVariant.Warning -> Triple(GxWarningSoft, GxWarning, GxWarning.copy(alpha = 0.4f))
-        GxChipVariant.Danger -> Triple(GxDangerSoft, GxDanger, GxDanger.copy(alpha = 0.4f))
-        GxChipVariant.Brand -> Triple(GxPrimarySoft, GxPrimary, GxPrimary.copy(alpha = 0.4f))
+        GxChipVariant.Safe -> Triple(GxSafeSoft, GxSafe, GxSafe.copy(alpha = 0.35f))
+        GxChipVariant.Warning -> Triple(GxWarningSoft, GxWarning, GxWarning.copy(alpha = 0.35f))
+        GxChipVariant.Danger -> Triple(GxDangerSoft, GxDanger, GxDanger.copy(alpha = 0.35f))
+        GxChipVariant.Brand -> Triple(GxPrimarySoft, GxPrimary, GxPrimary.copy(alpha = 0.35f))
+    }
+
+    val interactiveModifier = if (onClick != null) {
+        Modifier
+            .defaultMinSize(minHeight = 44.dp)
+            .clickable(onClick = onClick)
+    } else {
+        Modifier
     }
 
     Surface(
         modifier = modifier
             .height(height)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+            .then(interactiveModifier),
         shape = RoundedCornerShape(8.dp),
         color = bgColor,
         border = BorderStroke(1.dp, borderColor)
@@ -78,16 +93,16 @@ fun GxChip(
                         imageVector = icon,
                         contentDescription = null,
                         tint = textColor,
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier.size(14.dp)
                     )
-                    Spacer(Modifier.width(5.dp))
+                    Spacer(Modifier.width(6.dp))
                 }
                 Text(
                     text = text,
                     color = textColor,
-                    fontSize = 11.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.3.sp
+                    letterSpacing = 0.2.sp
                 )
             }
         }

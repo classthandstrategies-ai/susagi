@@ -29,6 +29,11 @@ import com.guardian.app.ui.theme.GxPrimarySoft
 import com.guardian.app.ui.theme.GxShapeLg
 import com.guardian.app.ui.theme.GxSurface
 
+/**
+ * GxCard (Refined)
+ *
+ * Base card container providing subtle banking-grade depth and responsive touch feedback.
+ */
 @Composable
 fun GxCard(
     modifier: Modifier = Modifier,
@@ -37,12 +42,12 @@ fun GxCard(
     borderColor: Color = GxBorder,
     shape: Shape = GxShapeLg,
     borderWidth: Dp = 1.dp,
-    contentPadding: Dp = 20.dp,
+    contentPadding: Dp = 18.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && onClick != null) 0.98f else 1.0f,
+        targetValue = if (isPressed && onClick != null) 0.985f else 1.0f,
         animationSpec = spring(stiffness = 600f, dampingRatio = 0.8f),
         label = "gx-card-press"
     )

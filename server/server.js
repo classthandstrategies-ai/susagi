@@ -191,6 +191,17 @@ const trustedAlertsRouter = require('./routes/trusted_alerts');
 app.use('/alerts', trustedAlertsRouter);
 
 // -------------------------------------------------------------
+// 7. Authoritative Verification & Device Registry API
+// -------------------------------------------------------------
+const devicesRouter = require('./routes/devices');
+const verificationsRouter = require('./routes/verifications');
+const trustedContactsRouter = require('./routes/trustedContacts');
+app.use('/api/v1/devices', devicesRouter);
+app.use('/api/v1/verifications', verificationsRouter);
+app.use('/api/v1/trusted-contacts', trustedContactsRouter);
+
+
+// -------------------------------------------------------------
 // 8. Family Alert System (FCM)
 // -------------------------------------------------------------
 let admin;

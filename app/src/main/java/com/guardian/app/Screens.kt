@@ -12,6 +12,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -160,13 +161,13 @@ fun AuthScreen(onContinue: (String) -> Unit) {
             Spacer(Modifier.height(20.dp))
 
             Text(
-                "Guardian Defense",
+                "SuSagi",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = GxTextHi
             )
             Text(
-                "Next-generation AI security defending calls, phishing links, and extortive messages in 10+ Indic languages.",
+                "Real-time defense against phone scams, digital arrest coercion, and impersonation.",
                 color = GxTextMid,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
@@ -211,7 +212,7 @@ fun AuthScreen(onContinue: (String) -> Unit) {
             Spacer(Modifier.height(24.dp))
 
             GxButton.Primary(
-                text = "Launch Security Hub",
+                text = "Continue",
                 onClick = { onContinue(name.trim().ifBlank { "User" }) },
                 enabled = email.isNotBlank() && password.length >= 4,
                 icon = Icons.AutoMirrored.Filled.ArrowForward,
@@ -224,7 +225,7 @@ fun AuthScreen(onContinue: (String) -> Unit) {
                 Icon(Icons.Default.Lock, contentDescription = null, tint = GxTextLo, modifier = Modifier.size(13.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    "On-device zero-telemetry sandbox. Encrypted session state.",
+                    "SuSagi uses microphone access only when enabled protection features need it.",
                     color = GxTextLo,
                     fontSize = 11.sp
                 )
@@ -358,7 +359,7 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                             lineHeight = 34.sp
                         )
                         Text(
-                            "Hello $name. Guardian detects scam calls, coercive extortion, and phishing links in real time across Hindi, English, and 10+ Indian regional languages.",
+                            "Hello $name. SuSagi helps you recognize suspicious calls, messages, and links before you take a risky action — with clear warnings in English and Hindi.",
                             color = GxTextMid,
                             fontSize = 15.sp,
                             lineHeight = 22.sp
@@ -371,9 +372,9 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         item {
-                            Text("Security Layers", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = GxTextHi)
+                            Text("Protection Permissions", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = GxTextHi)
                             Text(
-                                "Grant core hardware hooks so Guardian can protect your device.",
+                                "SuSagi needs these permissions to detect suspicious calls and deliver immediate safety warnings.",
                                 color = GxTextMid,
                                 fontSize = 13.sp,
                                 modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
@@ -381,24 +382,24 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                         }
                         item {
                             OnboardingPermRow(
-                                title = "1. Microphone Speech-to-Text",
-                                desc = "Real-time acoustic analysis of speakerphone calls for extortion and digital arrest threats.",
+                                title = "1. Microphone Access",
+                                desc = "Microphone access helps SuSagi analyze supported calls for suspicious patterns.",
                                 isGranted = hasMicPermission,
                                 onGrant = { micLauncher.launch(android.Manifest.permission.RECORD_AUDIO) }
                             )
                         }
                         item {
                             OnboardingPermRow(
-                                title = "2. Phone Call Telephony",
-                                desc = "Auto-triggers the AI Reasoning Card as soon as a call is ringing or answered.",
+                                title = "2. Call Protection Access",
+                                desc = "Recognizes incoming calls so SuSagi can activate real-time protection.",
                                 isGranted = hasPhonePermission,
                                 onGrant = { phoneLauncher.launch(android.Manifest.permission.READ_PHONE_STATE) }
                             )
                         }
                         item {
                             OnboardingPermRow(
-                                title = "3. Floating Heads-Up Overlay",
-                                desc = "Renders the live risk telemetry over the stock dialer and messaging apps.",
+                                title = "3. Display Over Other Apps",
+                                desc = "Shows live safety guidance over your dialer during an active call.",
                                 isGranted = hasOverlayPermission,
                                 onGrant = {
                                     val intent = Intent(
@@ -411,8 +412,8 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                         }
                         item {
                             OnboardingPermRow(
-                                title = "4. Call Control & Auto-Hangup",
-                                desc = "Allows one-tap emergency call termination when severe fraud (score >= 85%) is detected.",
+                                title = "4. Call Control",
+                                desc = "Allows you to safely disconnect suspected fraudulent calls with one tap.",
                                 isGranted = hasCallControlPermission,
                                 onGrant = {
                                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -426,7 +427,7 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                         item {
                             OnboardingPermRow(
                                 title = "5. Notification Alerts",
-                                desc = "Displays critical scam heads-up warnings during active attacks.",
+                                desc = "Delivers urgent scam and message warnings.",
                                 isGranted = hasNotificationPermission,
                                 onGrant = {
                                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -441,25 +442,17 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
 
                     // Step 2: Language Picker
                     2 -> Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                        Text("Scam Warning Language", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = GxTextHi)
+                        Text("Choose Warning Language", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = GxTextHi)
                         Text(
-                            "Select the language you want Guardian's Bhashini AI voice alerts and reasoning card explanations in:",
+                            "Select your preferred language for safety guidance and threat explanations:",
                             color = GxTextMid,
                             fontSize = 13.sp,
                             lineHeight = 18.sp
                         )
 
                         val languages = listOf(
-                            "hi" to "Hindi (हिन्दी)",
-                            "ta" to "Tamil (தமிழ்)",
-                            "te" to "Telugu (తెలుగు)",
-                            "bn" to "Bengali (বাংলা)",
-                            "mr" to "Marathi (मराठी)",
-                            "kn" to "Kannada (ಕನ್ನಡ)",
-                            "ml" to "Malayalam (മലയാളം)",
-                            "pa" to "Punjabi (ਪੰਜਾਬੀ)",
-                            "gu" to "Gujarati (ગુજરાતી)",
-                            "en" to "English"
+                            "en" to "English",
+                            "hi" to "Hindi (हिन्दी)"
                         )
 
                         @OptIn(ExperimentalLayoutApi::class)
@@ -502,9 +495,9 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                                 Icon(Icons.Default.Check, contentDescription = null, tint = GxSafe, modifier = Modifier.size(36.dp))
                             }
                         }
-                        Text("You're Protected", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = GxTextHi)
+                        Text("SuSagi Setup Complete", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = GxTextHi)
                         Text(
-                            "Dual-Engine AI (Gemini 1.5 Flash + Bhashini STT) is standing by in your secure on-device sandbox.",
+                            "You're ready to start using SuSagi. You can finish optional protection setup anytime.",
                             color = GxTextMid,
                             fontSize = 14.sp,
                             lineHeight = 20.sp,
@@ -539,7 +532,7 @@ fun OnboardingScreen(name: String, onComplete: () -> Unit) {
                     )
                 } else {
                     GxButton.Primary(
-                        text = "Open Guardian Shield",
+                        text = "Open SuSagi",
                         onClick = onComplete,
                         icon = Icons.Default.Shield,
                         modifier = Modifier.fillMaxWidth()
@@ -645,7 +638,7 @@ fun HomeScreen(
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            "GUARDIAN DEFENSE",
+                            "SUSAGI DEFENSE",
                             color = GxTextLo,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -759,7 +752,7 @@ fun HomeScreen(
         item {
             FeatureCardItem(
                 title = "Live Call Speaker Guard",
-                subtitle = "Bhashini STT + Gemini reasoning with tone & TTS warning",
+                subtitle = "Live speech analysis with tone & TTS warning",
                 icon = Icons.Default.PhoneInTalk,
                 accentColor = GxPrimary,
                 onClick = onOpenCallRisk
@@ -1189,7 +1182,7 @@ fun SettingsScreen(
         item {
             GxCard(modifier = Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Language Preference (Bhashini AI)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = GxTextHi)
+                    Text("Language Preference", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = GxTextHi)
                     Text("Select warning and reasoning language:", color = GxTextLo, fontSize = 12.sp)
 
                     val languages = listOf(
@@ -1478,4 +1471,22 @@ fun isDefaultBrowser(context: Context): Boolean {
     } catch (_: Exception) {
         false
     }
+}
+
+// ============================================================================
+// COMPOSE PREVIEWS (UI PREVIEW DATA — NOT RUNTIME DATA)
+// ============================================================================
+
+@Preview(name = "Auth Screen", showBackground = true)
+@Composable
+private fun PreviewAuthScreen() {
+    /* UI PREVIEW DATA — NOT RUNTIME DATA */
+    AuthScreen(onContinue = {})
+}
+
+@Preview(name = "Onboarding Screen", showBackground = true)
+@Composable
+private fun PreviewOnboardingScreen() {
+    /* UI PREVIEW DATA — NOT RUNTIME DATA */
+    OnboardingScreen(name = "Aarav", onComplete = {})
 }
