@@ -114,8 +114,8 @@ data class LiveDefenseUiState(
             } else if (verificationOutcomeStatus == com.guardian.app.ui.guardians.VerificationStatus.VERIFIED) {
                 formattedSignals.add(
                     LiveSignalUiModel(
-                        title = if (isHindi) "पहचान सत्यापित" else "Guardian Verified Identity",
-                        description = verificationOutcomeHeadline ?: (if (isHindi) "अभिभावक ने पुष्टि की।" else "Guardian confirmed caller attribution."),
+                        title = if (isHindi) "अनुरोध सत्यापित" else "Guardian Confirmed Request",
+                        description = verificationOutcomeHeadline ?: (if (isHindi) "अभिभावक ने पुष्टि की कि यह अनुरोध उनकी तरफ से है।" else "Identity attribution was confirmed."),
                         isCautionary = false,
                         isCritical = false
                     )

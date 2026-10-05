@@ -307,7 +307,7 @@ class PhoneAVerificationTest {
 
         assertFalse("activeRejection must remain false", controller.state.value.activeRejection)
         assertEquals(UiStatus.VERIFIED, controller.state.value.requesterUiModel.status)
-        assertEquals("Mom confirmed caller identity", controller.state.value.verificationOutcomeHeadline)
+        assertEquals("Mom confirmed this request", controller.state.value.verificationOutcomeHeadline)
 
         // Legacy score of 70 is preserved, not artificially zeroed
         assertEquals(70, controller.calculateEffectiveRiskScore(70))

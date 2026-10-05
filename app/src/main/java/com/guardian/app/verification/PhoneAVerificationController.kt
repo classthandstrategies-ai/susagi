@@ -331,8 +331,8 @@ class PhoneAVerificationController(
                         requesterUiModel = it.requesterUiModel.copy(
                             status = UiStatus.VERIFIED
                         ),
-                        verificationOutcomeHeadline = "$guardianName confirmed caller identity",
-                        verificationOutcomeDetail = "Guardian confirmed attribution. Stay cautious with financial requests.",
+                        verificationOutcomeHeadline = "$guardianName confirmed this request",
+                        verificationOutcomeDetail = "Identity attribution was confirmed. Stay cautious with financial or sensitive requests.",
                         verificationOutcomeStatus = UiStatus.VERIFIED
                     )
                 }

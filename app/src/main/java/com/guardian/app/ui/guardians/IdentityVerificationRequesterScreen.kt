@@ -410,9 +410,9 @@ private fun VerifiedStateCard(
 
             Text(
                 text = if (isHindi)
-                    "${uiModel.guardianName} ने 'हाँ, यह मैं हूँ' चुनकर पुष्टि की है कि वे वर्तमान में आपसे बात कर रहे हैं।"
+                    "${uiModel.guardianName} ने पुष्टि की है कि यह अनुरोध उनकी तरफ से है।"
                 else
-                    "${uiModel.guardianName} confirmed they are currently on this call with you.",
+                    "${uiModel.guardianName} confirmed this request is from them.",
                 style = SuSagiTheme.typography.bodyMedium,
                 color = SuSagiColors.TextPrimary,
                 fontWeight = FontWeight.Medium
@@ -441,9 +441,9 @@ private fun VerifiedStateCard(
                     Spacer(Modifier.width(10.dp))
                     Text(
                         text = if (isHindi)
-                            "ध्यान दें: भले ही पहचान की पुष्टि हो गई हो, बैंक हस्तांतरण करने से पहले हमेशा राशि की स्वतंत्र रूप से पुष्टि करें।"
+                            "ध्यान दें: पहचान का स्रोत सत्यापित हुआ है। बैंक हस्तांतरण करने से पहले हमेशा राशि की स्वतंत्र रूप से पुष्टि करें।"
                         else
-                            "Notice: Identity confirmed. Always verify transfer amounts and account numbers independently before sending money.",
+                            "Notice: Identity attribution was confirmed. Always verify transfer amounts and account numbers independently before sending money.",
                         style = SuSagiTheme.typography.caption,
                         color = SuSagiColors.TextSecondary,
                         lineHeight = 18.sp
