@@ -61,12 +61,6 @@ android {
         val supabaseAnonKey = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
 
-        // Voice Authenticity inference endpoint (CP4A)
-        val voiceAuthUrl = localProperties.getProperty("VOICE_AUTH_URL") ?: "http://10.0.2.2:8090/analyze"
-        buildConfigField("String", "VOICE_AUTH_URL", "\"$voiceAuthUrl\"")
-
-        val voiceAuthApiKey = localProperties.getProperty("VOICE_AUTH_API_KEY") ?: ""
-        buildConfigField("String", "VOICE_AUTH_API_KEY", "\"$voiceAuthApiKey\"")
     }
 
     buildTypes {

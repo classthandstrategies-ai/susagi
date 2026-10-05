@@ -1,26 +1,26 @@
 package com.guardian.app.voiceauth
 
 import android.util.Log
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.corotines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.corotines.channels.Channel
+import kotlinx.corotines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /**
- * Orchestrates the voice authenticity analysis pipeline:
+ * Orchestrates the voice authenticity pipeline without blocking Agora callbacks.
  *
- *   REMOTE PCM frames
- *   → Voice Activity Detection
- *   → rolling audio buffer
- *   → voice-authenticity inference
- *   → smoothing
- *   → SmoothedAuthenticityResult
+ * Agora callback:
+ *   copy PCM -> trySend(RemoteAudioFrame) -> return
  *
- * Design rules:
- * - Does NOT perform inference inside any audio callback
- * - Uses a background coroutine worker for inference
- * - Produces evidence only — does not calculate RiskLevel
+ * Background pipeline:
+ *   frame queue -> VAD -> rolling window -> inference queue
+ *   -> authenticated remote inference -> smoothing -> UI state
  */
 class VoiceAuthenticityAnalyzer(
     private val engine: VoiceAuthenticityEngine,
@@ -31,77 +31,134 @@ class VoiceAuthenticityAnalyzer(
 ) {
     companion object {
         private const val TAG = "VoiceAuthAnalyzer"
+        private const val REQUIRED_SAMPLE_RATE = 16000
+        private const val FRAME_QUEUE_CAPACITY = 64
     }
 
-    /** Current smoothed authenticity result */
-    private val _result = MutableStateFlow(SmoothedAuthenticityResult(
-        label = VoiceAuthenticityLabel.UNCERTAIN,
-        smoothedProbability = 0.5f,
-        smoothedConfidence = 0f,
-        assessmentsUsed = 0,
-        rawAssessments = emptyList()
-    ))
+    private data class RemoteAudioFrame(
+        val pcm16: ShortArray,
+        val sampleRate: Int,
+        val remoteUid: Int?,
+        val audioTimestampMs: Long
+    )
+
+    private data class QueuedWindow(
+        val window: AudioWindowBuffer.AnalysisWindow,
+        val remoteUid: Int?,
+        val firstSpeechTimestampMs: Long,
+        val windowReadyMs: Long
+    )
+
+    private val _result = MutableStateFlow(
+        SmoothedAuthenticityResult(
+            label = VoiceAuthenticityLabel.UNCERTAIN,
+            smoothedProbability = 0.5f,
+            smoothedConfidence = 0f,
+            assessmentsUsed = 0,
+            rawAssessments = emptyList()
+        )
+    )
     val result: StateFlow<SmoothedAuthenticityResult> = _result.asStateFlow()
 
-    /** Latency metrics */
     private val _latencyMetrics = MutableStateFlow(LatencyMetrics())
     val latencyMetrics: StateFlow<LatencyMetrics> = _latencyMetrics.asStateFlow()
 
-    /** Whether the analyzer is currently active */
+    private val frameQueue = Channel<RemoteAudioFrame>(
+        capacity = FRAME_QUEUE_CAPACITY,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    private val inferenceQueue = Channel<QueuedWindow>(Channel.CONFLATED)
+
     private var isActive = false
-
-    /** Channel for sending windows to the inference worker */
-    private val inferenceQueue = Channel<AudioWindowBuffer.AnalysisWindow>(Channel.CONFLATED)
-
-    private var workerJob: Job? = null
+    private var frameProcessorJob: Job? = null
+    private var inferenceWorkerJob: Job? = null
     private var firstResultEmitted = false
-    private var analyzerStartTimeMs = 0L
+    private var firstSpeechTimestampMs: Long? = null
 
-    /**
-     * Start the analysis pipeline.
-     */
     fun start() {
         if (isActive) return
         isActive = true
-        analyzerStartTimeMs = System.currentTimeMillis()
         firstResultEmitted = false
+        firstSpeechTimestampMs = null
         smoothing.reset()
         windowBuffer.reset()
+        _latencyMetrics.value = LatencyMetrics()
 
-        workerJob = scope.launch(Dispatchers.Default) {
-            for (window in inferenceQueue) {
+        frameProcessorJob = scope.launch(Dispatchers.Default) {
+            for (frame in frameQueue) {
+                if (!isActive) break
+                if (frame.sampleRate != REQUIRED_SAMPLE_RATE) {
+                    Log.w(
+                        TAG,
+                        "Dropping remote PCM with sampleRate=${frame.sampleRate}; expected $REQUIRED_SAMPLE_RATE"
+                    )
+                    continue
+                }
+                if (!vad.containsSpeech(frame.pcm16, frame.sampleRate)) continue
+
+                if (firstSpeechTimestampMs == null) {
+                    firstSpeechTimestampMs = frame.audioTimestampMs
+                }
+
+                val windows = windowBuffer.addSamples(frame.pcm16)
+                for (window in windows) {
+                    val readyMs = System.currentTimeMillis()
+                    val queued = QueuedWindow(
+                        window = window,
+                        remoteUid = frame.remoteUid,
+                        firstSpeeechTimestampMs = firstSpeechTimestampMs ?: frame.audioTimestampMs,
+                        windowReadyMs = readyMs
+                    )
+                    Log.i(
+                        TAG,
+                        "VOICE_AUTH_TIMING remote_uid=${frame.remoteUid ?: -1} " +
+                            "audio_timestamp_ms=${frame.audioTimestampMs} window_ready_ms=$readyMs " +
+                            "window_index=${window.windowIndex}"
+                    )
+                    inferenceQueue.trySend(queued)
+                }
+            }
+        }
+
+        inferenceWorkerJob = scope.launch(Dispatchers.Default) {
+            for (queued in inferenceQueue) {
                 if (!isActive) break
                 try {
-                    val windowReadyMs = System.currentTimeMillis()
                     val inferenceStartMs = System.currentTimeMillis()
-                    val assessment = engine.analyze(window.pcm16, window.sampleRate)
+                    val assessment = engine.analyze(
+                        queued.window.pcm16,
+                        queued.window.sampleRate
+                    )
                     val inferenceEndMs = System.currentTimeMillis()
 
                     val smoothed = smoothing.addAssessment(assessment)
+                    val stateUpdateMs = System.currentTimeMillis()
                     _result.value = smoothed
 
-                    // Update latency metrics
-                    val metrics = _latencyMetrics.value
-                    val inferenceLatency = inferenceEndMs - inferenceStartMs
-                    val updatedMetrics = metrics.addMeasurement(
-                        inferenceLatencyMs = inferenceLatency,
+                    val requestLatencyMs = inferenceEndMs - inferenceStartMs
+                    val firstLatency = if (!firstResultEmitted) {
+                        stateUpdateMs - queued.firstSpeechTimestampMs
+                    } else {
+                        null
+                    }
+
+                    _latencyMetrics.value = _latencyMetrics.value.addMeasurement(
+                        inferenceLatencyMs = requestLatencyMs,
                         isFirstResult = !firstResultEmitted,
-                        firstResultLatencyMs = if (!firstResultEmitted) {
-                            System.currentTimeMillis() - analyzerStartTimeMs
-                        } else null
+                        firstResultLatencyMs = firstLatency
                     )
-                    _latencyMetrics.value = updatedMetrics
+
+                    Log.i(
+                        TAG,
+                        "VOICE_AUTH_TIMING remote_uid=${queued.remoteUid ?: -1} " +
+                            "window_ready_ms=${queued.windowReadyMs} inference_call_start_ms=$inferenceStartMs " +
+                            "inference_call_end_ms=$inferenceEndMs analyzer_state_update_ms=$stateUpdateMs " +
+                            "request_latency_ms=$requestLatencyMs first_result_latency_ms=${firstLatency ?: -1}"
+                    )
 
                     if (!firstResultEmitted) {
                         firstResultEmitted = true
-                        Log.i(TAG, "First authenticity result: ${smoothed.label}, " +
-                            "latency=${inferenceLatency}ms, " +
-                            "firstResult=${System.currentTimeMillis() - analyzerStartTimeMs}ms")
                     }
-
-                    Log.d(TAG, "Assessment: label=${assessment.label}, " +
-                        "synProb=${assessment.syntheticProbability}, " +
-                        "smoothed=${smoothed.label} (${smoothed.smoothedProbability})")
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -114,32 +171,34 @@ class VoiceAuthenticityAnalyzer(
     }
 
     /**
-     * Feed remote audio PCM data. Call this from outside the Agora callback thread.
-     * This does NOT block.
+     * Called from the Agora audio callback.
+     *
+     * This method intentionally performs no VAD, buffering, networking, or inference.
+     * AgoraFrameBridge already copied the SDK ByteBuffer into a ShortArray; this
+     * method copies once more to establish ownership, enqueues, and returns.
      */
-    fun onRemoteAudio(pcm16: ShortArray, sampleRate: Int) {
+    fun onRemoteAudio(
+        pcm16: ShortArray,
+        sampleRate: Int,
+        remoteUid: Int? = null
+    ) {
         if (!isActive) return
-
-        // VAD check
-        if (!vad.containsSpeech(pcm16, sampleRate)) return
-
-        // Add to window buffer
-        val windows = windowBuffer.addSamples(pcm16)
-
-        // Enqueue windows for inference (CONFLATED = only latest survives)
-        for (window in windows) {
-            inferenceQueue.trySend(window)
-        }
+        frameQueue.trySend(
+            RemoteAudioFrame(
+                pcm16 = pcm16.copyOf(),
+                sampleRate = sampleRate,
+                remoteUid = remoteUid,
+                audioTimestampMs = System.currentTimeMillis()
+            )
+        )
     }
 
-    /**
-     * Stop the analyzer and reset state.
-     */
     fun stop() {
         isActive = false
-        workerJob?.cancel()
-        workerJob = null
-        inferenceQueue.cancel()
+        frameProcessorJob?.cancel()
+        inferenceWorkerJob?.cancel()
+        frameProcessorJob = null
+        inferenceWorkerJob = null
         smoothing.reset()
         windowBuffer.reset()
         _result.value = SmoothedAuthenticityResult(
@@ -154,38 +213,42 @@ class VoiceAuthenticityAnalyzer(
 }
 
 /**
- * Latency measurements for the authenticity pipeline.
+ * Client-side request latency measurements.
+ *
+ * These timings cover engine.analyze() end-to-end, including backend/network
+ * time. Server-side AASIST inference timing is returned separately in the API
+ * response and emitted in VOICE_AUTH_TIMING logs.
  */
 data class LatencyMetrics(
     val inferenceLatencies: List<Long> = emptyList(),
     val firstResultLatencyMs: Long? = null
 ) {
-    /** p50 inference latency in ms */
     val p50InferenceMs: Long?
-        get() = if (inferenceLatencies.isNotEmpty()) {
-            inferenceLatencies.sorted()[inferenceLatencies.size / 2]
-        } else null
+        get() = percentile(0.50)
 
-    /** p95 inference latency in ms */
     val p95InferenceMs: Long?
-        get() = if (inferenceLatencies.isNotEmpty()) {
-            val sorted = inferenceLatencies.sorted()
-            sorted[(sorted.size * 0.95).toInt().coerceAtMost(sorted.size - 1)]
-        } else null
+        get() = percentile(0.95)
+
+    private fun percentile(q: Double): Long? {
+        if (inferenceLatencies.isEmpty()) return null
+        val sorted = inferenceLatencies.sorted()
+        val index = ((sorted.size - 1) * q).toInt().coerceIn(0, sorted.lastIndex)
+        return sorted[index]
+    }
 
     fun addMeasurement(
         inferenceLatencyMs: Long,
         isFirstResult: Boolean,
         firstResultLatencyMs: Long? = null
     ): LatencyMetrics {
-        val updated = inferenceLatencies + inferenceLatencyMs
-        // Keep last 100 measurements
-        val trimmed = if (updated.size > 100) updated.takeLast(100) else updated
+        val updated = (inferenceLatencies + inferenceLatencyMs).takeLast(100)
         return copy(
-            inferenceLatencies = trimmed,
+            inferenceLatencies = updated,
             firstResultLatencyMs = if (isFirstResult && firstResultLatencyMs != null) {
                 firstResultLatencyMs
-            } else this.firstResultLatencyMs
+            } else {
+                this.firstResultLatencyMs
+            }
         )
     }
 }

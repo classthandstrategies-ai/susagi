@@ -153,11 +153,10 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
                     onLocalPcm = { samples, rate ->
                         dualSttController?.pushLocal(samples, rate)
                     },
-                    onRemotePcm = { _, samples, rate ->
+                    onRemotePcm = { uid, samples, rate ->
                         dualSttController?.pushRemote(samples, rate)
-                        // Feed remote audio to voice authenticity analyzer
-                        // (enqueue only — no ML inference inside this callback)
-                        voiceAuthAnalyzer?.onRemoteAudio(samples, rate)
+                        // Copy/enqueue only; VAD/windowing/inference run off the Agora callback.
+                        voiceAuthAnalyzer?.onRemoteAudio(samples, rate, uid)
                     }
                 ).also { it.register() }
             }
@@ -181,12 +180,10 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
      */
     private fun initVoiceAuthAnalyzer() {
         try {
-            val endpointUrl = BuildConfig.VOICE_AUTH_URL.ifBlank { "http://10.0.2.2:8090/analyze" }
-            val apiKey = BuildConfig.VOICE_AUTH_API_KEY
+            val endpointUrl = "${BuildConfig.BACKEND_URL.trimEnd('/')}/api/v1/voice-auth/analyze"
 
             val engine = RemoteInferenceAuthenticityEngine(
-                endpointUrl = endpointUrl,
-                apiKey = apiKey
+                endpointUrl = endpointUrl
             )
 
             voiceAuthAnalyzer = VoiceAuthenticityAnalyzer(
@@ -234,6 +231,11 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
                 voiceAuthStatusText = statusText
             )
         }
+        Log.i(
+            "GuardianVoip",
+            "VOICE_AUTH_TIMING ui_state_update_ms=${System.currentTimeMillis()} " +
+                "label=${smoothed.label} assessments=${smoothed.assessmentsUsed}"
+        )
     }
 
 
