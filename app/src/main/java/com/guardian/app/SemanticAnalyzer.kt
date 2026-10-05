@@ -14,6 +14,10 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
+import com.guardian.app.domain.risk.ScamSignal
+import com.guardian.app.domain.risk.semantic.GeminiSemanticSignalProvider
+import com.guardian.app.domain.risk.semantic.SemanticModelTransport
+import com.guardian.app.domain.risk.semantic.SemanticSignalProvider
 
 // ==========================================
 // 1. DATA MODELS (Matching Dual-Engine Spec)
@@ -302,7 +306,7 @@ object KeywordScorer {
             isPolice && (hasFear || wantsMoney) -> "Digital Arrest Law Enforcement Extortion"
             isBank && wantsOtp -> "Bank Impersonation & 2FA Credential Harvesting"
             isUtility && wantsMoney -> "Electricity Disconnection Panic Scheme"
-            wantsRemote -> "Remote Access Trojan / Screen Takeover"
+            wantsRemote -> "Remote Access / Screen Sharing Request"
             else -> if (cappedScore > 20) "Social Engineering Pretext" else "None"
         }
 
@@ -445,16 +449,29 @@ class GeminiApiClient(private val apiKey: String = "") {
 
 class SemanticAnalyzer(
     private val context: Context,
-    apiKey: String = ""
+    private val apiKey: String = ""
 ) {
     private val geminiClient = GeminiApiClient(apiKey)
     private var systemPrompt: String = ""
+    private var semanticSignalPrompt: String = ""
     private var lastRequestTime = 0L
     private val MIN_INTERVAL_MS = 2000L // 2-second rate-limit guard
     private var lastValidReport = RiskReport()
 
+    private val semanticTransport = SemanticModelTransport { prompt, text ->
+        geminiClient.analyzeTranscript(prompt, text)
+    }
+
+    private val semanticSignalProvider: SemanticSignalProvider by lazy {
+        GeminiSemanticSignalProvider(
+            transport = semanticTransport,
+            systemPrompt = semanticSignalPrompt
+        )
+    }
+
     init {
         loadSystemPrompt()
+        loadSemanticSignalPrompt()
         val key = BuildConfig.GEMINI_API_KEY
         val masked = if (key.isNotBlank()) "${key.take(4)}...${key.takeLast(4)}" else "[EMPTY]"
         Log.d("GuardianAI", "SemanticAnalyzer initialized. BuildConfig.GEMINI_API_KEY = $masked")
@@ -465,6 +482,14 @@ class SemanticAnalyzer(
             context.assets.open("scam_analysis_prompt.txt").bufferedReader().use { it.readText() }
         } catch (_: Exception) {
             "Analyze the conversation transcript and return JSON risk assessment with engines and explanation."
+        }
+    }
+
+    private fun loadSemanticSignalPrompt() {
+        semanticSignalPrompt = try {
+            context.assets.open("scam_signal_prompt.txt").bufferedReader().use { it.readText() }
+        } catch (_: Exception) {
+            ""
         }
     }
 
@@ -604,5 +629,30 @@ class SemanticAnalyzer(
         }
         val localizedExplanation = com.guardian.app.bhashini.BhashiniTranslateClient.translate(report.explanationEn, "en", userLang)
         return report.copy(explanationHi = localizedExplanation)
+    }
+
+    /**
+     * Extracts structured semantic evidence signals asynchronously via Gemini.
+     *
+     * Provides structured [ScamSignal] evidence without evaluating final risk score or policy.
+     * If the Gemini API key is missing, network is unavailable, or generation fails,
+     * it safely returns an empty list without falling back to keyword heuristics or crashing.
+     */
+    suspend fun extractSemanticSignals(
+        transcript: String,
+        language: String = "en",
+        timestampMs: Long = 0L
+    ): List<ScamSignal> {
+        if (transcript.isBlank()) return emptyList()
+
+        val effectiveApiKey = if (apiKey.isNotBlank()) apiKey else BuildConfig.GEMINI_API_KEY
+        if (effectiveApiKey.isBlank()) return emptyList()
+        if (!isNetworkAvailable()) return emptyList()
+
+        return try {
+            semanticSignalProvider.extractSignals(transcript, language, timestampMs)
+        } catch (_: Throwable) {
+            emptyList()
+        }
     }
 }
