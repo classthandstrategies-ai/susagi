@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                 }
                 val token = task.result
                 android.util.Log.d("GuardianFCM", "Current FCM token: ${token.take(20)}...")
-                com.guardian.app.fcm.GuardianFirebaseMessagingService().sendTokenToBackend(token)
+                com.guardian.app.device.DeviceIdentityStore.savePendingFcmToken(applicationContext, token)
             }
         } catch (e: Exception) {
             android.util.Log.e("GuardianFCM", "Firebase messaging init fallback", e)
