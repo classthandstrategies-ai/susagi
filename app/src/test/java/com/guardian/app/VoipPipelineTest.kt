@@ -8,26 +8,16 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Test
 
-/**
- * NOTE: These tests require Android Context for SemanticAnalyzer
- * and cannot run in pure JVM unit tests. Marked @Ignore until
- * migrated to androidTest or a Context-free SemanticAnalyzer stub.
- */
-@Ignore("SemanticAnalyzer requires Android Context — cannot run as JVM unit test")
 class VoipPipelineTest {
-
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    private fun stubAnalyzer() = SemanticAnalyzer(null as android.content.Context)
 
     @Test
     fun testInstantKeywordScoring_triggersImmediateHighRiskScore() = runTest {
         val flow = MutableSharedFlow<TranscriptLine>(extraBufferCapacity = 16)
         var latestReport: RiskReport? = null
 
-        val analyzer = stubAnalyzer()
+        val analyzer = SemanticAnalyzer()
         val liveRiskAnalyzer = LiveRiskAnalyzer(analyzer, "en") { report ->
             latestReport = report
         }
@@ -40,7 +30,7 @@ class VoipPipelineTest {
         // Assert score jumped to >= 60% instantly
         assertTrue(latestReport != null)
         assertEquals(60, latestReport?.riskScore)
-        assertTrue(latestReport?.topSignals?.firstOrNull()?.title?.contains("otp", ignoreCase = true) == true)
+        assertTrue(latestReport?.topSignals?.firstOrNull()?.contains("otp") == true)
 
         liveRiskAnalyzer.stop()
     }
@@ -50,7 +40,7 @@ class VoipPipelineTest {
         val flow = MutableSharedFlow<TranscriptLine>(extraBufferCapacity = 16)
         var latestReport: RiskReport? = null
 
-        val analyzer = stubAnalyzer()
+        val analyzer = SemanticAnalyzer()
         val liveRiskAnalyzer = LiveRiskAnalyzer(analyzer, "hi") { report ->
             latestReport = report
         }
