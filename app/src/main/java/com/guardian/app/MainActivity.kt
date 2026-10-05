@@ -24,7 +24,15 @@ import com.guardian.app.ui.theme.GxTextMid
 import com.guardian.app.ui.theme.GxVoid
 import com.guardian.app.ui.theme.GxWarning
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.guardian.app.ui.guardians.VerificationNotificationIntentParser
+import com.guardian.app.ui.guardians.VerificationResponseScreen
+
 class MainActivity : ComponentActivity() {
+    private var pendingVerificationSessionId by mutableStateOf<String?>(null)
+
     private val protectionPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.READ_PHONE_STATE] == true) {
@@ -36,6 +44,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Route cold-start identity verification intent if present
+        val initialRoute = VerificationNotificationIntentParser.parse(intent)
+        if (initialRoute != null) {
+            pendingVerificationSessionId = initialRoute.sessionId
+        }
 
         try {
             com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
@@ -52,38 +66,55 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             GuardianTheme {
-                GuardianApp(
-                    onOpenCallRisk = {
-                        startActivity(Intent(this, CallRiskActivity::class.java))
-                    },
-                    onOpenQrScanner = {
-                        startActivity(Intent(this, QrScannerActivity::class.java))
-                    },
-                    onPhoneProtectionToggle = { enabled ->
-                        if (enabled) {
-                            protectionPermissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.READ_PHONE_STATE,
-                                    Manifest.permission.POST_NOTIFICATIONS
+                val verificationId = pendingVerificationSessionId
+                if (verificationId != null) {
+                    VerificationResponseScreen(
+                        sessionId = verificationId,
+                        onDismiss = { pendingVerificationSessionId = null }
+                    )
+                } else {
+                    GuardianApp(
+                        onOpenCallRisk = {
+                            startActivity(Intent(this, CallRiskActivity::class.java))
+                        },
+                        onOpenQrScanner = {
+                            startActivity(Intent(this, QrScannerActivity::class.java))
+                        },
+                        onPhoneProtectionToggle = { enabled ->
+                            if (enabled) {
+                                protectionPermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.READ_PHONE_STATE,
+                                        Manifest.permission.POST_NOTIFICATIONS
+                                    )
                                 )
-                            )
-                        } else {
-                            try {
-                                stopService(Intent(this, CallMonitorService::class.java))
-                            } catch (_: Exception) {}
+                            } else {
+                                try {
+                                    stopService(Intent(this, CallMonitorService::class.java))
+                                } catch (_: Exception) {}
+                            }
+                        },
+                        onMessageProtectionToggle = { enabled ->
+                            if (enabled) {
+                                startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                            } else {
+                                try {
+                                    stopService(Intent(this, MessageListenerService::class.java))
+                                } catch (_: Exception) {}
+                            }
                         }
-                    },
-                    onMessageProtectionToggle = { enabled ->
-                        if (enabled) {
-                            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                        } else {
-                            try {
-                                stopService(Intent(this, MessageListenerService::class.java))
-                            } catch (_: Exception) {}
-                        }
-                    }
-                )
+                    )
+                }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val route = VerificationNotificationIntentParser.parse(intent)
+        if (route != null) {
+            pendingVerificationSessionId = route.sessionId
         }
     }
 }
