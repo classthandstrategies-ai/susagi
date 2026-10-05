@@ -15,6 +15,14 @@ google-services.json
 node_modules/
 */node_modules/
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+venv/
+.venv/
+
 # Build artifacts
 build/
 */build/
