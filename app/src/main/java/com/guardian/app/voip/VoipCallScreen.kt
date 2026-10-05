@@ -62,6 +62,7 @@ import com.guardian.app.ui.theme.GxBase
 import com.guardian.app.ui.theme.GxDanger
 import com.guardian.app.ui.theme.GxSafe
 import com.guardian.app.ui.theme.GxWarning
+import com.guardian.app.voiceauth.VoiceAuthenticityLabel
 
 @Composable
 fun VoipCallScreen(
@@ -279,6 +280,89 @@ fun VoipCallScreen(
                         fontSize = 13.sp,
                         lineHeight = 18.sp
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 5. Voice Authenticity Card (independent from scam risk)
+            GxCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "VOICE AUTHENTICITY",
+                            fontSize = 11.sp,
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        val authColor = when (state.voiceAuthLabel) {
+                            VoiceAuthenticityLabel.LIKELY_HUMAN -> GxSafe
+                            VoiceAuthenticityLabel.SYNTHETIC_LIKELY -> GxWarning
+                            VoiceAuthenticityLabel.UNCERTAIN -> Color.White.copy(alpha = 0.5f)
+                        }
+                        val authLabel = when (state.voiceAuthLabel) {
+                            VoiceAuthenticityLabel.LIKELY_HUMAN -> "Likely human"
+                            VoiceAuthenticityLabel.SYNTHETIC_LIKELY -> "Synthetic voice suspected"
+                            VoiceAuthenticityLabel.UNCERTAIN -> {
+                                if (state.voiceAuthAssessmentCount == 0) "Not enough audio yet"
+                                else "Uncertain"
+                            }
+                        }
+                        Text(
+                            text = authLabel,
+                            fontSize = 12.sp,
+                            color = authColor,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    if (state.voiceAuthAssessmentCount > 0) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = state.voiceAuthStatusText,
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 6. Identity Card (placeholder for checkpoint 2)
+            GxCard(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "IDENTITY",
+                        fontSize = 11.sp,
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.4f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = state.identityStatus,
+                            fontSize = 12.sp,
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 

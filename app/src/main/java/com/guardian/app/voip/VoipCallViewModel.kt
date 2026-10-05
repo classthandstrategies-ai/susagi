@@ -14,6 +14,10 @@ import com.guardian.app.callprotect.CallHistoryEntry
 import com.guardian.app.callprotect.CriticalWarningPlayer
 import com.guardian.app.callprotect.GuardianDatabase
 import com.guardian.app.protect.advanced.TrustedContactAlertSender
+import com.guardian.app.voiceauth.RemoteInferenceAuthenticityEngine
+import com.guardian.app.voiceauth.SmoothedAuthenticityResult
+import com.guardian.app.voiceauth.VoiceAuthenticityAnalyzer
+import com.guardian.app.voiceauth.VoiceAuthenticityLabel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +38,15 @@ data class VoipState(
     val banner: String? = null,
     val isMuted: Boolean = false,
     val isSpeakerOn: Boolean = true,
-    val isWarningActive: Boolean = false
+    val isWarningActive: Boolean = false,
+    // Voice Authenticity (independent from scam risk)
+    val voiceAuthLabel: VoiceAuthenticityLabel = VoiceAuthenticityLabel.UNCERTAIN,
+    val voiceAuthProbability: Float = 0.5f,
+    val voiceAuthConfidence: Float = 0f,
+    val voiceAuthAssessmentCount: Int = 0,
+    val voiceAuthStatusText: String = "Not enough audio yet",
+    // Identity (placeholder for checkpoint 2)
+    val identityStatus: String = "Not checked"
 )
 
 class VoipCallViewModel(application: Application) : AndroidViewModel(application) {
@@ -48,6 +60,7 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
     private var dualSttController: DualSttController? = null
     private var frameBridge: AgoraFrameBridge? = null
     private var liveRiskAnalyzer: LiveRiskAnalyzer? = null
+    private var voiceAuthAnalyzer: VoiceAuthenticityAnalyzer? = null
 
     private var timerJob: Job? = null
     private var warningTriggered = false
@@ -130,6 +143,9 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
                 }
             }
 
+            // Initialize voice authenticity analyzer (independent from scam risk)
+            initVoiceAuthAnalyzer()
+
             val rtc = agoraEngine.getRtcEngine()
             if (rtc != null) {
                 frameBridge = AgoraFrameBridge(
@@ -139,6 +155,9 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
                     },
                     onRemotePcm = { _, samples, rate ->
                         dualSttController?.pushRemote(samples, rate)
+                        // Feed remote audio to voice authenticity analyzer
+                        // (enqueue only — no ML inference inside this callback)
+                        voiceAuthAnalyzer?.onRemoteAudio(samples, rate)
                     }
                 ).also { it.register() }
             }
@@ -154,6 +173,69 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
             _state.update { it.copy(banner = "Agora fallback active") }
         }
     }
+
+    /**
+     * Initialize the voice authenticity analysis pipeline.
+     * Runs independently from scam detection.
+     * Uses a private inference endpoint for the first milestone.
+     */
+    private fun initVoiceAuthAnalyzer() {
+        try {
+            val endpointUrl = BuildConfig.VOICE_AUTH_URL.ifBlank { "http://10.0.2.2:8090/analyze" }
+            val apiKey = BuildConfig.VOICE_AUTH_API_KEY
+
+            val engine = RemoteInferenceAuthenticityEngine(
+                endpointUrl = endpointUrl,
+                apiKey = apiKey
+            )
+
+            voiceAuthAnalyzer = VoiceAuthenticityAnalyzer(
+                engine = engine,
+                scope = viewModelScope
+            ).also { analyzer ->
+                analyzer.start()
+
+                // Collect authenticity results and update UI state (independent from scam risk)
+                viewModelScope.launch {
+                    analyzer.result.collect { smoothed ->
+                        updateVoiceAuthState(smoothed)
+                    }
+                }
+            }
+
+            Log.i("GuardianVoip", "VoiceAuthenticityAnalyzer initialized (endpoint=$endpointUrl)")
+        } catch (e: Exception) {
+            Log.e("GuardianVoip", "Voice authenticity init failed: ${e.message}", e)
+            _state.update { it.copy(voiceAuthStatusText = "Voice authenticity unavailable") }
+        }
+    }
+
+    /**
+     * Update UI state from smoothed voice authenticity result.
+     * Does NOT affect RiskReport or scam risk — these are independent.
+     */
+    private fun updateVoiceAuthState(smoothed: SmoothedAuthenticityResult) {
+        val statusText = when {
+            smoothed.assessmentsUsed == 0 -> "Not enough audio yet"
+            smoothed.label == VoiceAuthenticityLabel.LIKELY_HUMAN ->
+                "Voice appears consistent with natural human speech"
+            smoothed.label == VoiceAuthenticityLabel.SYNTHETIC_LIKELY ->
+                "SuSagi detected acoustic patterns associated with synthetic or voice-converted speech. " +
+                "Treat this as supporting evidence, not proof of identity."
+            else -> "Assessing voice authenticity\u2026"
+        }
+
+        _state.update { current ->
+            current.copy(
+                voiceAuthLabel = smoothed.label,
+                voiceAuthProbability = smoothed.smoothedProbability,
+                voiceAuthConfidence = smoothed.smoothedConfidence,
+                voiceAuthAssessmentCount = smoothed.assessmentsUsed,
+                voiceAuthStatusText = statusText
+            )
+        }
+    }
+
 
     private fun handleNewTranscript(line: TranscriptLine) {
         _state.update { current ->
@@ -237,6 +319,9 @@ class VoipCallViewModel(application: Application) : AndroidViewModel(application
         stopDurationTimer()
         frameBridge?.unregister()
         frameBridge = null
+
+        voiceAuthAnalyzer?.stop()
+        voiceAuthAnalyzer = null
 
         dualSttController?.stop()
         dualSttController = null
