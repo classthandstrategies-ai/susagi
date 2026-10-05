@@ -158,8 +158,86 @@ async function setTrustedContact({
     };
 }
 
+/**
+ * Lists authorized trusted contact relationships for a protected user.
+ *
+ * Rules:
+ * - protectedUid is required
+ * - database client is required
+ * - queries only rows where protected_user_id == protectedUid
+ * - when enabledOnly == true (default), filters where enabled == true
+ * - maps rows to { trustedUserId, displayName, relationship, enabled }
+ * - returns empty array [] if no contacts found
+ * - throws controlled errors with statusCode
+ */
+async function listTrustedContacts({
+    protectedUid,
+    enabledOnly = true,
+    db = getAdminClient()
+}) {
+    if (!protectedUid || !String(protectedUid).trim()) {
+        const error = new Error('protectedUid is required');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (!db) {
+        const error = new Error('Database service unavailable: Supabase is not configured');
+        error.statusCode = 503;
+        throw error;
+    }
+
+    const cleanProtected = String(protectedUid).trim();
+
+    try {
+        if (typeof db.from === 'function') {
+            let query = db
+                .from('trusted_contacts')
+                .select('trusted_user_id, display_name, relationship, enabled')
+                .eq('protected_user_id', cleanProtected);
+
+            if (enabledOnly) {
+                query = query.eq('enabled', true);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                console.error('[TrustedContacts] Error listing contacts:', error.message);
+                const err = new Error(error.message);
+                err.statusCode = 500;
+                throw err;
+            }
+
+            if (!data || !Array.isArray(data)) {
+                return [];
+            }
+
+            return data.map((row) => ({
+                trustedUserId: row.trusted_user_id,
+                displayName: row.display_name || '',
+                relationship: row.relationship || '',
+                enabled: Boolean(row.enabled)
+            }));
+        }
+
+        const err = new Error('Unsupported database interface');
+        err.statusCode = 503;
+        throw err;
+    } catch (err) {
+        if (err.statusCode) {
+            throw err;
+        }
+        console.error('[TrustedContacts] Error listing contacts:', err.message);
+        const controlledErr = new Error(err.message);
+        controlledErr.statusCode = 500;
+        throw controlledErr;
+    }
+}
+
 module.exports = {
     isTrustedContact,
     getTrustedContact,
-    setTrustedContact
+    setTrustedContact,
+    listTrustedContacts
 };

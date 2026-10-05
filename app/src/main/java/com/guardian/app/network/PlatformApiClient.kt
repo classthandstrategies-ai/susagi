@@ -2,8 +2,10 @@ package com.guardian.app.network
 
 import com.guardian.app.BuildConfig
 import com.guardian.app.auth.SupabaseAuthManager
+import com.guardian.app.verification.TrustedContactRelationship
 import com.guardian.app.verification.VerificationSession
 import com.guardian.app.verification.VerificationStatus
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -182,6 +184,37 @@ class PlatformApiClient(
         }
     }
 
+    /**
+     * Retrieves the list of canonical, enabled trusted contact relationships
+     * for the currently authenticated protected user.
+     */
+    suspend fun getTrustedContacts(): Result<List<TrustedContactRelationship>> = withContext(Dispatchers.IO) {
+        val tokenResult = authManager.getAccessToken()
+        if (tokenResult.isFailure) {
+            return@withContext Result.failure(
+                tokenResult.exceptionOrNull() ?: IllegalStateException("Authentication failed: unable to obtain access token")
+            )
+        }
+        val accessToken = tokenResult.getOrThrow()
+
+        val request = Request.Builder()
+            .url("${baseUrl.trimEnd('/')}/api/v1/trusted-contacts")
+            .addHeader("Authorization", "Bearer $accessToken")
+            .get()
+            .build()
+
+        executeRequest(request) { json ->
+            val contactsArray = json.optJSONArray("contacts")
+                ?: throw IOException("Malformed response: missing 'contacts' array")
+            val list = mutableListOf<TrustedContactRelationship>()
+            for (i in 0 until contactsArray.length()) {
+                val item = contactsArray.optJSONObject(i) ?: continue
+                list.add(parseTrustedContactRelationship(item))
+            }
+            list
+        }
+    }
+
     private fun <T> executeRequest(request: Request, parser: (JSONObject) -> T): Result<T> {
         return try {
             val httpResponse: Response = httpClient.newCall(request).execute()
@@ -212,6 +245,18 @@ class PlatformApiClient(
     }
 
     companion object {
+        /**
+         * Deserializes a backend JSON object into a domain [TrustedContactRelationship].
+         */
+        fun parseTrustedContactRelationship(json: JSONObject): TrustedContactRelationship {
+            return TrustedContactRelationship(
+                trustedUserId = json.optString("trustedUserId", ""),
+                displayName = json.optString("displayName", ""),
+                relationship = json.optString("relationship", ""),
+                enabled = json.optBoolean("enabled", true)
+            )
+        }
+
         /**
          * Deserializes a backend JSON object into a domain [VerificationSession].
          */
