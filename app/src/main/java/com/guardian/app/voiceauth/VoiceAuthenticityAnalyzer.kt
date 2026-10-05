@@ -3,11 +3,11 @@ package com.guardian.app.voiceauth
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.corotines.Dispatchers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.corotines.channels.Channel
-import kotlinx.corotines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -106,7 +106,7 @@ class VoiceAuthenticityAnalyzer(
                     val queued = QueuedWindow(
                         window = window,
                         remoteUid = frame.remoteUid,
-                        firstSpeeechTimestampMs = firstSpeechTimestampMs ?: frame.audioTimestampMs,
+                        firstSpeechTimestampMs = firstSpeechTimestampMs ?: frame.audioTimestampMs,
                         windowReadyMs = readyMs
                     )
                     Log.i(
