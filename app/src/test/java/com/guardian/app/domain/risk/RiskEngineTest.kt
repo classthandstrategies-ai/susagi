@@ -30,10 +30,11 @@ import org.junit.Test
 class RiskEngineTest {
 
     private lateinit var engine: RiskEngine
+    private val policy: RiskPolicy = RiskPolicy.DEFAULT
 
     @Before
     fun setUp() {
-        engine = RiskEngine()
+        engine = RiskEngine(policy)
     }
 
     // -------------------------------------------------------------------------
@@ -253,7 +254,6 @@ class RiskEngineTest {
     fun test10_trustedContactRejection_producesStrongIdentityRisk() {
         val rejectionSignal = ScamSignal(
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED,
-            context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
             rawEvidence = "Trusted-contact verification was rejected. Caller is not recognized contact."
         )
@@ -262,8 +262,11 @@ class RiskEngineTest {
 
         assertEquals(RiskLevel.HIGH, assessment.level)
         assertEquals(65, assessment.score)
+        assertTrue("Score ${assessment.score} must exceed maxPassiveAccumulationCeiling ${policy.maxPassiveAccumulationCeiling}",
+            assessment.score > policy.maxPassiveAccumulationCeiling)
         assertTrue(assessment.explanation.contains("verification failed", ignoreCase = true))
         assertTrue(assessment.recommendedActions.contains(ProtectiveAction.END_CALL))
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.VERIFY_IDENTITY))
     }
 
     // -------------------------------------------------------------------------
@@ -271,7 +274,7 @@ class RiskEngineTest {
     // -------------------------------------------------------------------------
     @Test
     fun test11_trustedContactConfirmation_reducesIdentityConcernWithoutErasingDirectExtortion() {
-        // Sub-case 11A: Identity claim alone + trusted contact confirmed → score drops to 0 / LOW
+        // Sub-case 11A: Identity claim alone + trusted contact confirmed (default/UNKNOWN context) → score drops to 0 / LOW
         val authorityClaim = ScamSignal(
             type = SignalType.AUTHORITY_CLAIM,
             context = SignalContext.COMMAND,
@@ -280,7 +283,6 @@ class RiskEngineTest {
         )
         val contactConfirmed = ScamSignal(
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_CONFIRMED,
-            context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
             rawEvidence = "Family contact verified via out-of-band confirmation."
         )
@@ -290,7 +292,7 @@ class RiskEngineTest {
         assertEquals(RiskLevel.LOW, assessmentA.level)
         assertTrue(assessmentA.explanation.contains("trusted contact", ignoreCase = true))
 
-        // Sub-case 11B: Money demand + identity claim + confirmation
+        // Sub-case 11B: Money demand + identity claim + confirmation (default/UNKNOWN context)
         // Identity risk is neutralized, but money demand evidence remains!
         val moneyDemand = ScamSignal(
             type = SignalType.MONEY_TRANSFER_REQUEST,
@@ -303,6 +305,7 @@ class RiskEngineTest {
         assertEquals(45, assessmentB.score) // Money base remains active, identity claim eliminated
         assertEquals(RiskLevel.CAUTION, assessmentB.level)
         assertFalse(assessmentB.score == 0) // Did NOT blindly erase money demand!
+        assertTrue(assessmentB.recommendedActions.contains(ProtectiveAction.DO_NOT_SEND_MONEY))
     }
 
     // -------------------------------------------------------------------------
@@ -447,13 +450,11 @@ class RiskEngineTest {
     fun test17_conflictingTrustedContactVerification_doesNotSilentlyResolveToLow() {
         val confirmedSignal = ScamSignal(
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_CONFIRMED,
-            context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
             rawEvidence = "Contact was marked confirmed in a previous call record."
         )
         val rejectedSignal = ScamSignal(
             type = SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED,
-            context = SignalContext.COMMAND,
             source = SignalSource.HUMAN_VERIFICATION,
             rawEvidence = "Trusted-contact verification was rejected."
         )
@@ -465,6 +466,7 @@ class RiskEngineTest {
         assertFalse("Conflicting verification must not silently resolve to LOW", assessment.level == RiskLevel.LOW)
         assertTrue(assessment.explanation.contains("conflict", ignoreCase = true))
         assertTrue(assessment.recommendedActions.contains(ProtectiveAction.END_CALL))
+        assertTrue(assessment.recommendedActions.contains(ProtectiveAction.VERIFY_IDENTITY))
     }
 
     // -------------------------------------------------------------------------
@@ -545,11 +547,59 @@ class RiskEngineTest {
             ScamSignal(SignalType.AUTHORITY_CLAIM, SignalContext.COMMAND, SignalSource.LOCAL_RULE),
             ScamSignal(SignalType.MONEY_TRANSFER_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE),
             ScamSignal(SignalType.OTP_REQUEST, SignalContext.COMMAND, SignalSource.LOCAL_RULE),
-            ScamSignal(SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED, SignalContext.COMMAND, SignalSource.HUMAN_VERIFICATION)
+            ScamSignal(type = SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED, source = SignalSource.HUMAN_VERIFICATION)
         ))
         assertEquals(
             compoundAssessment.recommendedActions.size,
             compoundAssessment.recommendedActions.toSet().size
         )
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 19: Trusted-contact confirmation does NOT erase independent active risks (Case 4)
+    // -------------------------------------------------------------------------
+    @Test
+    fun test19_trustedContactConfirmation_doesNotEraseIndependentActiveRisks() {
+        val contactConfirmed = ScamSignal(
+            type = SignalType.TRUSTED_CONTACT_VERIFICATION_CONFIRMED,
+            source = SignalSource.HUMAN_VERIFICATION,
+            rawEvidence = "Family contact verified via out-of-band confirmation."
+        )
+
+        // 4A: OTP_REQUEST active demand + CONFIRMED default/UNKNOWN
+        val otpDemand = ScamSignal(
+            type = SignalType.OTP_REQUEST,
+            context = SignalContext.REQUEST,
+            source = SignalSource.LOCAL_RULE,
+            rawEvidence = "Please tell me the OTP."
+        )
+        val otpAssessment = engine.evaluate(listOf(otpDemand, contactConfirmed))
+        assertEquals(55, otpAssessment.score)
+        assertEquals(RiskLevel.CAUTION, otpAssessment.level)
+        assertTrue(otpAssessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SHARE_CREDENTIALS))
+
+        // 4B: MONEY_TRANSFER_REQUEST active demand + CONFIRMED default/UNKNOWN
+        val moneyDemand = ScamSignal(
+            type = SignalType.MONEY_TRANSFER_REQUEST,
+            context = SignalContext.REQUEST,
+            source = SignalSource.LOCAL_RULE,
+            rawEvidence = "Please send 1000 rupees."
+        )
+        val moneyAssessment = engine.evaluate(listOf(moneyDemand, contactConfirmed))
+        assertEquals(45, moneyAssessment.score)
+        assertEquals(RiskLevel.CAUTION, moneyAssessment.level)
+        assertTrue(moneyAssessment.recommendedActions.contains(ProtectiveAction.DO_NOT_SEND_MONEY))
+
+        // 4C: REMOTE_ACCESS_REQUEST active demand + CONFIRMED default/UNKNOWN
+        val remoteDemand = ScamSignal(
+            type = SignalType.REMOTE_ACCESS_REQUEST,
+            context = SignalContext.REQUEST,
+            source = SignalSource.LOCAL_RULE,
+            rawEvidence = "Install AnyDesk app."
+        )
+        val remoteAssessment = engine.evaluate(listOf(remoteDemand, contactConfirmed))
+        assertEquals(55, remoteAssessment.score)
+        assertEquals(RiskLevel.CAUTION, remoteAssessment.level)
+        assertTrue(remoteAssessment.recommendedActions.contains(ProtectiveAction.DO_NOT_INSTALL_REMOTE_ACCESS))
     }
 }

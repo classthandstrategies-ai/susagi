@@ -79,6 +79,13 @@ class RiskEngine(
                 continue
             }
 
+            // Human verification outcome: rejection is an authoritative identity threat
+            // routed directly into active identity signals regardless of conversational context.
+            if (signal.type == SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED) {
+                identitySignals.add(signal)
+                continue
+            }
+
             // Suppress passive/ambiguous signals contradicted by benign context
             if (signal.context.isPassiveOrInformational &&
                 (warningSignalTypes.contains(signal.type) || hasGeneralScamWarning)
@@ -344,7 +351,11 @@ class RiskEngine(
     }
 
     private fun getIdentityWeight(type: SignalType, context: SignalContext): Int {
-        val multiplier = if (context.isPassiveOrInformational) policy.passiveMentionMultiplier else 1.0f
+        val multiplier = if (type != SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED && context.isPassiveOrInformational) {
+            policy.passiveMentionMultiplier
+        } else {
+            1.0f
+        }
         val base = when (type) {
             SignalType.TRUSTED_CONTACT_VERIFICATION_REJECTED -> policy.trustedContactRejectedBase
             SignalType.IDENTITY_MISMATCH -> policy.identityMismatchBase
