@@ -47,3 +47,8 @@ replay_pid*
 # OS
 .DS_Store
 Thumbs.db
+
+# CP4A local voice benchmark corpus — biometric/audio data must never be committed
+server/voice-auth/benchmark-data/
+server/voice-auth/benchmark-manifest*.json
+.env.local
